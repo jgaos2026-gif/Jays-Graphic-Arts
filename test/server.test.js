@@ -31,7 +31,7 @@ test("POST /api/leads creates and lists lead", async () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name: "Jay Doe",
+        name: "Jane Smith",
         email: "jay@example.com",
         serviceRequest: "Logo package",
       }),
@@ -39,7 +39,7 @@ test("POST /api/leads creates and lists lead", async () => {
 
     assert.equal(createResponse.status, 201);
     const created = await createResponse.json();
-    assert.equal(created.name, "Jay Doe");
+    assert.equal(created.name, "Jane Smith");
 
     const listResponse = await fetch(`${getBaseUrl(server)}/api/leads`);
     assert.equal(listResponse.status, 200);

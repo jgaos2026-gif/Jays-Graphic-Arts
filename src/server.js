@@ -27,11 +27,12 @@ function parseBody(req) {
     let body = "";
 
     req.on("data", (chunk) => {
-      body += chunk;
-      if (body.length > 1_000_000) {
+      if (body.length + chunk.length > 1_000_000) {
         reject(new Error("Payload too large"));
         req.destroy();
+        return;
       }
+      body += chunk;
     });
 
     req.on("end", () => {
@@ -73,7 +74,7 @@ async function requestHandler(req, res) {
 
   if (method === "GET" && pathname === "/") {
     sendJson(res, 200, {
-      service: "Jays Graphic Arts Core Backend",
+      service: "Jays-Graphic-Arts Core Backend",
       status: "running",
       endpoints: [
         "GET /health",
@@ -168,8 +169,8 @@ async function requestHandler(req, res) {
   if (method === "POST" && pathname === "/api/invoices") {
     try {
       const body = await parseBody(req);
-      if (!validateField(body, "projectId") || typeof body.amount !== "number") {
-        sendJson(res, 400, { error: "projectId and numeric amount are required" });
+      if (!validateField(body, "projectId") || typeof body.amount !== "number" || !Number.isFinite(body.amount)) {
+        sendJson(res, 400, { error: "projectId is required and amount must be a JSON number" });
         return;
       }
 
