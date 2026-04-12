@@ -1,0 +1,25 @@
+{
+  "name": "jays-graphic-arts",
+  "version": "1.0.0",
+  "description": "> **The world's first fully Autonomous AI-run graphic arts company — complete business cycles, zero compromise on compliance.**",
+  "main": "src/server.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jgaos2026-gif/Jays-Graphic-Arts.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/jgaos2026-gif/Jays-Graphic-Arts/issues"
+  },
+  "homepage": "https://github.com/jgaos2026-gif/Jays-Graphic-Arts#readme"
+}

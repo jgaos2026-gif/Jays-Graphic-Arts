@@ -29,3 +29,36 @@ Jays-Graphic-Arts operates every function of a professional graphic design studi
 ## About
 
 Jays-Graphic-Arts was founded on the principle that a small studio can deliver enterprise-grade design services at scale by pairing human creative direction with autonomous AI execution. Every policy, safeguard, and capability listed in this documentation reflects the real system in production.
+
+---
+
+## Core Backend (Now Implemented)
+
+The repository now includes a runnable HTTP backend:
+
+- `GET /` service info
+- `GET /health` health check
+- `GET /api` API index
+- `GET/POST /api/leads`
+- `GET/POST /api/projects`
+- `GET/POST /api/invoices`
+
+### Run
+
+1. `npm install` (no external dependencies currently)
+2. `npm start`
+3. Open `http://localhost:3000/health`
+
+### Test
+
+1. `npm test`
+
+### Numbered Completion Checklist
+
+1. [x] Scaffold backend project (`package.json`)
+2. [x] Create core HTTP server
+3. [x] Implement lead/project/invoice API routes
+4. [x] Add payload validation and error handling
+5. [x] Add automated backend tests
+6. [x] Document run and test workflow
+7. [ ] Provision and attach a free public domain (requires external registrar/DNS account and deployment target)
