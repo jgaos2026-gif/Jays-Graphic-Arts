@@ -89,7 +89,11 @@ test("POST endpoints reject payloads over 1MB", async () => {
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
 
   try {
-    const oversized = "a".repeat(1_000_001);
+    const oversized = JSON.stringify({
+      name: "Jane Smith",
+      email: "jane@example.com",
+      serviceRequest: "a".repeat(1_000_050),
+    });
     const response = await fetch(`${getBaseUrl(server)}/api/leads`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

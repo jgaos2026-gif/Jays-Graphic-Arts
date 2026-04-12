@@ -26,12 +26,14 @@ function parseBody(req) {
   return new Promise((resolve, reject) => {
     let body = "";
     let tooLarge = false;
+    let payloadBytes = 0;
 
     req.on("data", (chunk) => {
       if (tooLarge) {
         return;
       }
-      if (body.length + chunk.length > 1_000_000) {
+      payloadBytes += Buffer.byteLength(chunk);
+      if (payloadBytes > 1_000_000) {
         tooLarge = true;
         reject(new Error("Payload too large"));
         return;
