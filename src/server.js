@@ -193,7 +193,8 @@ async function requestHandler(req, res) {
 
 function createServer() {
   return http.createServer((req, res) => {
-    requestHandler(req, res).catch(() => {
+    requestHandler(req, res).catch((error) => {
+      console.error("Request handler error:", error);
       sendJson(res, 500, { error: "Internal server error" });
     });
   });

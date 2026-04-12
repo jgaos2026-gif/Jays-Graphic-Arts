@@ -44,7 +44,7 @@ test("POST /api/leads creates and lists lead", async () => {
     const listResponse = await fetch(`${getBaseUrl(server)}/api/leads`);
     assert.equal(listResponse.status, 200);
     const list = await listResponse.json();
-    assert.equal(list.count >= 1, true);
+    assert.ok(list.count >= 1);
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }
