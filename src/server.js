@@ -35,6 +35,7 @@ function parseBody(req) {
       payloadBytes += Buffer.byteLength(chunk);
       if (payloadBytes > 1_000_000) {
         tooLarge = true;
+        req.pause();
         reject(new Error("Payload too large"));
         return;
       }
@@ -189,7 +190,7 @@ async function requestHandler(req, res) {
         !Number.isFinite(body.amount) ||
         body.amount <= 0
       ) {
-        sendJson(res, 400, { error: "projectId is required and amount must be a positive JSON number" });
+        sendJson(res, 400, { error: "projectId is required and amount must be a positive number" });
         return;
       }
 
