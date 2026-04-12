@@ -32,7 +32,7 @@ test("POST /api/leads creates and lists lead", async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: "Jane Smith",
-        email: "jay@example.com",
+        email: "jane@example.com",
         serviceRequest: "Logo package",
       }),
     });
@@ -62,6 +62,41 @@ test("POST /api/invoices validates payload", async () => {
     });
 
     assert.equal(response.status, 400);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test("POST /api/invoices rejects non-positive amounts", async () => {
+  const server = createServer();
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+
+  try {
+    const response = await fetch(`${getBaseUrl(server)}/api/invoices`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ projectId: "1", amount: 0 }),
+    });
+
+    assert.equal(response.status, 400);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test("POST endpoints reject payloads over 1MB", async () => {
+  const server = createServer();
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+
+  try {
+    const oversized = "a".repeat(1_000_001);
+    const response = await fetch(`${getBaseUrl(server)}/api/leads`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: oversized,
+    });
+
+    assert.equal(response.status, 413);
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }

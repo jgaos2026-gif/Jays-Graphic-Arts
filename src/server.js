@@ -25,11 +25,15 @@ function sendJson(res, statusCode, payload) {
 function parseBody(req) {
   return new Promise((resolve, reject) => {
     let body = "";
+    let tooLarge = false;
 
     req.on("data", (chunk) => {
+      if (tooLarge) {
+        return;
+      }
       if (body.length + chunk.length > 1_000_000) {
+        tooLarge = true;
         reject(new Error("Payload too large"));
-        req.destroy();
         return;
       }
       body += chunk;
@@ -129,6 +133,10 @@ async function requestHandler(req, res) {
       sendJson(res, 201, lead);
       return;
     } catch (error) {
+      if (error.message === "Payload too large") {
+        sendJson(res, 413, { error: error.message });
+        return;
+      }
       sendJson(res, 400, { error: error.message });
       return;
     }
@@ -156,6 +164,10 @@ async function requestHandler(req, res) {
       sendJson(res, 201, project);
       return;
     } catch (error) {
+      if (error.message === "Payload too large") {
+        sendJson(res, 413, { error: error.message });
+        return;
+      }
       sendJson(res, 400, { error: error.message });
       return;
     }
@@ -169,8 +181,13 @@ async function requestHandler(req, res) {
   if (method === "POST" && pathname === "/api/invoices") {
     try {
       const body = await parseBody(req);
-      if (!validateField(body, "projectId") || typeof body.amount !== "number" || !Number.isFinite(body.amount)) {
-        sendJson(res, 400, { error: "projectId is required and amount must be a JSON number" });
+      if (
+        !validateField(body, "projectId") ||
+        typeof body.amount !== "number" ||
+        !Number.isFinite(body.amount) ||
+        body.amount <= 0
+      ) {
+        sendJson(res, 400, { error: "projectId is required and amount must be a positive JSON number" });
         return;
       }
 
@@ -184,6 +201,10 @@ async function requestHandler(req, res) {
       sendJson(res, 201, invoice);
       return;
     } catch (error) {
+      if (error.message === "Payload too large") {
+        sendJson(res, 413, { error: error.message });
+        return;
+      }
       sendJson(res, 400, { error: error.message });
       return;
     }
