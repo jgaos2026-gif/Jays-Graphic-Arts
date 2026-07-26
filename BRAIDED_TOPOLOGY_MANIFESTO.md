@@ -6,10 +6,24 @@
 **Author:** John E. Arenz — JGA Enterprises, Mendota, Illinois  
 **Date:** 2026  
 
-> **Reader's Guide:** This document separates three layers throughout.
-> - **[ESTABLISHED]** — prior mathematical or computational work, with citations
-> - **[HYPOTHESIS]** — original research claims from this project, requiring independent validation
-> - **[INSPIRATION]** — conceptual analogies that motivate the work but do not constitute evidence
+---
+
+## How to Read This Document
+
+This manifesto keeps three lanes strictly separate:
+
+| Label | Meaning |
+|---|---|
+| **[PHYSICS]** | What physical science actually supports, with citations |
+| **[CS-TRAJECTORY]** | Where computer science is already moving, with established examples |
+| **[ESTABLISHED]** | Prior mathematics or computer science, with citations |
+| **[HYPOTHESIS]** | Original research claims from this project — not yet validated |
+| **[INSPIRATION]** | Conceptual analogy or philosophical speculation — motivation, not evidence |
+
+When these lanes are braided together carefully, the comparison becomes intellectually powerful.  
+When they are mixed without labels, it becomes science-fiction fog.
+
+For the full treatment, see [`docs/PHYSICS_AND_COMPUTATION.md`](docs/PHYSICS_AND_COMPUTATION.md).
 
 ---
 
@@ -17,10 +31,7 @@
 
 Modern computing has become extraordinarily powerful.
 
-Processors are faster.  
-Memory is larger.  
-AI models are bigger.  
-Distributed systems span the planet.
+Processors are faster. Memory is larger. AI models are bigger. Distributed systems span the planet.
 
 Yet the fundamental architecture of computation has changed surprisingly little.
 
@@ -30,329 +41,242 @@ These structures are remarkably successful.
 
 They are not the only possible structures.
 
-This work asks a different question.
+This work asks a different question:
 
 > *What if topology itself becomes an active computational primitive?*
 
-Not topology as visualization.  
-Not topology as mathematics alone.  
-But topology as executable architecture.
+Not topology as visualization. Not topology as mathematics alone. But topology as executable architecture.
 
 ---
 
 ## We Do Not Seek To Replace Computing
 
-Braided Computational Topology is not proposed as a replacement for modern computing.
+BCT is not proposed as a replacement for modern computing. It is proposed as a new architectural family.
 
-It is proposed as a new architectural family.
+Graphs did not replace trees. Matrices did not replace graphs. Neural networks did not replace finite-state machines.
 
-Graphs did not replace trees.  
-Matrices did not replace graphs.  
-Neural networks did not replace finite-state machines.
-
-Instead, computing expanded.
-
-**[HYPOTHESIS]** Braided architectures may represent another expansion.
+**[HYPOTHESIS]** Braided architectures may represent another expansion of the available computational vocabulary.
 
 ---
 
 ## The Core Observation
 
-**[ESTABLISHED]** Traditional state machines preserve current state, connectivity, and values. Prior states are overwritten unless explicitly saved. This is the correct trade-off for general-purpose computation.
+**[ESTABLISHED]** Traditional state machines preserve current state, connectivity, and values. Prior states are overwritten unless explicitly saved.
 
-**[ESTABLISHED]** Braid groups (Artin, 1925) naturally preserve:
+**[ESTABLISHED]** Braid groups (Artin, 1925) naturally preserve ordered interaction, crossing history, directionality, and structural consequence.
 
-- Ordered interaction between strands
-- Crossing history and directionality
-- Provenance of strand relationships
-- Structural consequence of each crossing
+Two braids may share identical closures (final states) while having completely different strand histories. The braid encodes the difference. A conventional state machine discards it.
 
-Two braids may share the same closure while having fundamentally different strand histories. The topology records the difference.
+**[PHYSICS]** The same structural distinction appears in physics: two spacetime histories can produce identical final configurations while having different causal structures. Physics treats those as distinct. **See [`docs/PHYSICS_AND_COMPUTATION.md`](docs/PHYSICS_AND_COMPUTATION.md) §1.1.**
 
-**[HYPOTHESIS]** Two computations may end in identical final states while arriving through fundamentally different histories. BCT proposes that executable braid structures can preserve that distinction structurally, where conventional architectures discard it.
+**[HYPOTHESIS]** BCT proposes that executable braid structures can preserve the computational equivalent of this distinction, where conventional architectures discard it.
 
 ---
 
 ## The Computational Question
 
-Rather than asking:
+Rather than asking: *"Can everything become a braid?"*
 
-> *"Can everything become a braid?"*
-
-We ask:
-
-> *"Which computational problems benefit from braid topology?"*
+We ask: *"Which computational problems benefit from braid topology?"*
 
 This shifts the discussion from philosophy to engineering.
-
-**[HYPOTHESIS]** Computation classes with mandatory history preservation, authority tracking, verification requirements, or recovery obligations are candidates for braid architectural advantage.
 
 ---
 
 ## Relationship to Established Mathematics
 
-**[ESTABLISHED]** Braided Computational Topology builds upon the following mathematical foundations:
+**[ESTABLISHED]** BCT builds on the following mathematical foundations:
 
-| Field | Relevance to BCT |
+| Field | Relevance |
 |---|---|
-| **Artin braid groups** | Algebraic structure of strand crossings and composition |
-| **Algebraic topology** | Formal study of shape, continuity, and structural invariants |
-| **Knot theory** | Closure properties of braids; invariants of braid equivalence |
-| **Category theory** | Formalization of braid composition as morphisms; monoidal categories |
-| **Directed algebraic topology** | Modeling ordered execution paths with directional structure |
-| **Automata theory** | Comparison baseline for executable braid semantics |
-| **Lattice theory** | Partial order structure of authority and trust hierarchies |
-| **Petri nets** | Established concurrency model; comparison baseline for braid execution |
-| **Tensor networks** | Structured information flow; composition of multi-strand operations |
-| **Persistent homology** | Analysis of evolving topological structure during computation |
-| **Information theory** | Bounds on history preservation overhead |
+| Artin braid groups | Algebraic structure of strand crossings |
+| Algebraic topology | Formal study of structural invariants |
+| Knot theory | Closure properties; braid invariants |
+| Category theory | Compositional semantics of instruction families |
+| Directed algebraic topology | Ordered execution path modeling |
+| Automata theory | Comparison baseline for braid execution semantics |
+| Lattice theory | Partial order structure of authority hierarchies |
+| Petri nets | Concurrency comparison baseline |
+| Tensor networks | Structured multi-strand information flow |
+| Persistent homology | Evolving topological structure analysis |
+| Information theory | Bounds on history preservation overhead |
 
 None of this prior work is claimed as original to this project.
 
 ---
 
-## Families Instead of One Braid
+## Where Physics Provides Real Support
 
-**[HYPOTHESIS]** There is no universal braid. Different braid families serve different computational purposes.
+**[PHYSICS — Established]** Two results from physics provide genuine, non-speculative support for BCT's core intuitions:
 
-The following families are currently under investigation. Each is a research definition, not a validated result.
+**1. Topological quantum computing** (Kitaev, 2003; Freedman et al., 2003) demonstrates that braid operations on non-Abelian anyons perform quantum computation whose correctness depends only on braid topology. This establishes, in physics, that *a braid can be an operation, not merely a picture.*
 
----
+**2. Topological phases of matter** demonstrate that global topological structure can provide robustness against local perturbations — a property of physical systems (Hasan & Kane, 2010).
 
-### Integrity Braid
+**[INSPIRATION — not equivalence]** BCT is inspired by these results but does not implement quantum mechanics. The structural intuition — that topology-based encoding may be more robust than value-based encoding — motivates the research without requiring quantum hardware.
 
-**Purpose:** Maintain provable computational correctness.
-
-**[HYPOTHESIS]** Properties:
-- Append-only history
-- Deterministic verification
-- Immutable evidence
-- Reproducible execution
+For string theory and simulation theory: these are labeled as **[INSPIRATION]** throughout. They are genuinely interesting thought experiments. They are not evidence. See `docs/PHYSICS_AND_COMPUTATION.md` §3.2 and §3.3.
 
 ---
 
-### Recovery Braid
+## Where Computer Science Is Already Moving
 
-**Purpose:** Navigate computational damage.
+**[CS-TRAJECTORY]** Modern systems increasingly require exactly what BCT proposes to provide natively:
 
-**[HYPOTHESIS]** Properties:
-- Alternate execution paths
-- Checkpoint restoration
-- Contradiction handling
-- Structural healing
+- Event sourcing and append-only logs
+- Distributed tracing and provenance
+- Mixture-of-experts routing in AI
+- Reversible and checkpointed execution
+- Tensor networks
+- Immutable infrastructure
 
----
+The problem is that these capabilities are currently bolted together as separate subsystems:
 
-### Authority Braid
+```
+Existing approach:      execution engine
+                      + separate logging layer
+                      + separate access control
+                      + separate recovery system
+                      + separate provenance tracker
+                      + separate verification
+```
 
-**Purpose:** Represent computational trust.
+**[HYPOTHESIS]** BCT proposes that one braided topology can carry all of these natively:
 
-**[HYPOTHESIS]** Properties:
-- Capability transfer
-- Permission inheritance
-- Verified promotion
-- Authority separation
+```
+Braided approach:     one structured topology carries
+                      execution, history, authority,
+                      verification, and recovery together
+```
 
----
-
-### Routing Braid
-
-**Purpose:** Move information through dynamic systems.
-
-**[HYPOTHESIS]** Properties:
-- Congestion avoidance
-- Adaptive routing
-- Reversible traversal
-- Deterministic replay
+Whether that unification reduces net overhead is the empirical question BCT is designed to answer.
 
 ---
 
-### Memory Braid
+## Instruction Families
 
-**Purpose:** Organize persistent knowledge.
+**[HYPOTHESIS]** Different computational purposes require different braid families. Six are currently defined:
 
-**[HYPOTHESIS]** Research areas include:
-- Hot memory (active execution state)
-- Cold memory (archived state)
-- Stitched memory (non-adjacent region access)
-- Circulating memory (Figure-8 and Möbius patterns)
-- Deduplicated memory
-- History-preserving memory
-
----
-
-### Learning Braid
-
-**[HYPOTHESIS — Open]** Can learning itself become a braid operation rather than a parameter update?
-
-This is an open research question with no current definition. It is listed to indicate a future research direction, not a current result.
+| Family | Purpose |
+|---|---|
+| **Integrity** | Append-only history; deterministic verification |
+| **Recovery** | Alternate paths; repair; structural healing |
+| **Authority** | Capability transfer; permission enforcement |
+| **Routing** | Dynamic path selection; deterministic replay |
+| **Memory** | Hot / warm / cold state coordination |
+| **Learning** | *Open — future research* |
+| **Consensus** | *Open — future research* |
 
 ---
 
-### Consensus Braid
+## The Governing Law
 
-**[HYPOTHESIS — Open]** Can distributed systems braid consensus history rather than merely agreeing on final state?
+> **No active state becomes trusted state without verification.**
 
-This is an open research question. It is listed to indicate a future research direction, not a current result.
+**[HYPOTHESIS]** In the BCT architecture, this is not a software policy enforced by an access control layer. It is a structural property of the braid topology. An unverified state crossing cannot produce a verified result — not by policy enforcement, but by architectural construction.
 
----
-
-## The First Law
-
-> No active state becomes trusted state without verification.
-
-**[HYPOTHESIS]** In the BCT architecture, verification is not a software policy applied on top of computation. It is a structural property of the braid topology. An unverified state crossing cannot produce a verified result — not by policy enforcement, but by architectural construction.
-
-This hypothesis requires formal proof and empirical validation.
-
----
-
-## Evidence Before Trust
-
-**[HYPOTHESIS]** The BCT architectural principle:
-
-- History should not disappear.
-- Evidence should not disappear.
-- Authority should not disappear.
-- Recovery should not erase failure.
-
-Instead:
-
-> Failure becomes knowledge.  
-> Knowledge becomes evidence.  
-> Evidence becomes trust.
-
-This is a design philosophy motivating the research. Each claim must be demonstrated through formal definitions and benchmark results.
-
----
-
-## Quantum Inspiration
-
-**[INSPIRATION — not evidence]**
-
-**[ESTABLISHED]** Quantum computation already demonstrates that the ordering of operations matters because many quantum operators do not commute. Topological quantum computing uses braid operations on anyons as a fault-tolerant quantum computation mechanism (Kitaev, 2003; Freedman et al., 2003).
-
-Braided Computational Topology is inspired by the observation that braid structures in quantum computing preserve operational ordering and interaction history in ways classical architectures do not.
-
-**This work is not:**
-- A quantum computer
-- Derived from quantum mechanics
-- Dependent on quantum hardware
-
-The inspiration is structural and conceptual. The research is classical computation theory.
-
----
-
-## String Theory Inspiration
-
-**[INSPIRATION — not evidence]**
-
-String theory offers an architectural image of complex structures emerging from interacting one-dimensional objects through structured interactions.
-
-Braided Computational Topology borrows only that architectural intuition:
-- Interacting strands
-- Structured crossings
-- Higher-order organization emerging from strand interactions
-
-**This work:**
-- Does not claim support from string theory
-- Does not depend on string theory being physically correct
-- Uses the image as a design motivation, not an evidential claim
-
-The inspiration is conceptual. It is listed here for transparency, not as justification.
+Formal proof of this structural enforcement is a priority open problem.
 
 ---
 
 ## Computational Hypotheses
 
-The following hypotheses are stated precisely so they can be tested and potentially falsified.
+Stated precisely so they can be tested and potentially falsified:
 
-**H1 — History preservation efficiency:**  
-Executable braid architectures will reduce net overhead for history-preserving computation classes compared to adding preservation mechanisms on top of conventional architectures.
+| # | Hypothesis | Status |
+|---|---|---|
+| H1 | Braid architectures reduce overhead for history-preserving computation classes | Untested |
+| H2 | Recovery braids achieve higher fidelity than checkpoint-based approaches | Untested |
+| H3 | Structural verification achieves higher completeness than post-hoc verification | Untested |
+| H4 | Authority braids reduce bypass vulnerability vs. software-layer enforcement | Untested |
+| H5 | Braid ISA can be simulated on conventional hardware with acceptable overhead | Untested |
+| H6 | Braid provenance improves AI reasoning explainability metrics | Untested |
 
-**H2 — Recovery fidelity:**  
-Recovery braid instructions will achieve higher fidelity restoration than checkpoint-based approaches for defined failure classes.
+---
 
-**H3 — Verification completeness:**  
-Structural verification (woven into braid topology) will achieve higher completeness than post-hoc verification for defined computation classes.
+## Braided AI Architecture
 
-**H4 — Authority integrity:**  
-Authority braids will reduce authority bypass vulnerability compared to software-layer authority enforcement for defined threat models.
+**[HYPOTHESIS]** The most compelling near-term application is AI reasoning where provenance, authority, and verification are mandatory. A braided AI system would separate reasoning functions into families:
 
-**H5 — Practical ISA:**  
-A braid ISA can be simulated on conventional hardware with acceptable overhead for at least one non-trivial application class.
+```
+Evidence Braid    → carries sources and provenance
+Hypothesis Braid  → generates candidate conclusions
+Verification Braid → challenges candidates
+Authority Braid   → tracks source and instruction rank
+Memory Braid      → hot / warm / cold reasoning state
+Recovery Braid    → rewinds after contradiction
+Consensus Braid   → reconciles specialized agents
+Output Braid      → promotes only certified results
+```
 
-**H6 — AI reasoning provenance:**  
-Braid provenance structures will improve explainability metrics for AI reasoning systems in at least one defined benchmark.
+Information flows both directions:
 
-Each hypothesis requires independent empirical or formal validation. None are currently validated.
+```
+Forward:  evidence → interpretation → candidate answer
+Reverse:  candidate answer → contradiction check → source validation → correction
+```
+
+The reverse path does not merely regenerate the answer. It inspects and verifies the path that produced it. **[HYPOTHESIS]**
 
 ---
 
 ## Engineering Philosophy
 
-Novelty is insufficient.
-
-Every architectural proposal must answer:
+Novelty is insufficient. Every architectural proposal must answer:
 
 - Can it be implemented?
 - Can it be measured?
 - Can it be reproduced?
 - Can it outperform existing methods for at least one class of problems?
 
-If not, it remains an interesting idea.  
-If yes, it becomes engineering.
+If not, it remains an interesting idea. If yes, it becomes engineering.
 
-**[HYPOTHESIS]** BCT is designed to be answerable by these tests. See `research/BENCHMARK_PLAN.md` for the current evaluation plan.
+BCT is designed to be answerable by these tests.
 
 ---
 
-## Mathematical Backbone Required
+## The Deeper Implication
 
-Before extending into new application domains, the strongest path forward requires investment in these directly applicable mathematical foundations:
+Conventional computers treat time as a sequence of updates:
 
-| Field | Specific Application |
+```
+State₀ → State₁ → State₂ → State₃
+```
+
+**[HYPOTHESIS]** The BCT model treats time as part of structure:
+
+```
+State₀
+  ╲ interaction history
+   ╳ authority
+  ╱ verification
+State₁
+  ╲ alternate paths
+   ╳ contradiction
+  ╱ recovery
+State₂
+```
+
+In a braid, the past is not merely behind the system. The past is woven into the present.
+
+> *Computing remembers where it arrived. Braided Computing remembers how it arrived.*
+
+That is the hypothesis. This research program is designed to test it.
+
+---
+
+## Continue Reading
+
+| Document | Content |
 |---|---|
-| Artin braid groups | Formal algebra of crossing operations |
-| Topological quantum computing | Braid operation semantics; existing results on braid computation |
-| Category theory | Compositional semantics of braid instruction families |
-| Directed algebraic topology | Ordered execution path modeling |
-| Tensor networks | Multi-strand information flow formalization |
-| Persistent homology | Structural analysis of evolving braid computations |
-| Petri nets | Concurrency comparison baseline |
-
-These fields provide rigorous foundations and give reviewers familiar landmarks. The original contribution of BCT is then the computational architecture built on top of them.
-
----
-
-## The Road Ahead
-
-This research program seeks to build:
-
-- Formal braid instruction set definitions
-- Braid execution semantics with mathematical proofs
-- Benchmark suites for each instruction family
-- Reproducible prototype implementations
-- Simulator for empirical evaluation
-- AI application experiments
-- Distributed runtime experiments
-
-See `research/ROADMAP.md` and `docs/ROADMAP.md` for milestones.
-
----
-
-## Closing Statement
-
-Computing has long optimized for *where* information arrives.
-
-Braided Computational Topology asks whether future systems should also preserve *how* information became trusted.
-
-If computation is fundamentally the transformation of information,  
-then perhaps topology should become one of its native languages.
-
-That is a hypothesis.
-
-This research program is designed to test it.
+| [`docs/PHYSICS_AND_COMPUTATION.md`](docs/PHYSICS_AND_COMPUTATION.md) | Full three-lane analysis: physics, CS trajectory, and inspiration |
+| [`docs/WHITE_PAPER.md`](docs/WHITE_PAPER.md) | Full abstract and architectural specification |
+| [`docs/THESIS.md`](docs/THESIS.md) | Extended research treatment |
+| [`mathematics/BRAID_GROUP_FOUNDATION.md`](mathematics/BRAID_GROUP_FOUNDATION.md) | Established mathematical foundations |
+| [`mathematics/EXECUTABLE_BRAIDS.md`](mathematics/EXECUTABLE_BRAIDS.md) | Original executable braid definitions |
+| [`research/HYPOTHESES.md`](research/HYPOTHESES.md) | Full hypothesis statements |
+| [`research/OPEN_PROBLEMS.md`](research/OPEN_PROBLEMS.md) | Unsolved problems |
+| [`docs/REFERENCES.md`](docs/REFERENCES.md) | Complete citation list |
 
 ---
 
