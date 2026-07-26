@@ -1,0 +1,46 @@
+[
+  {
+    "value": {
+      "counter": 1,
+      "payload": "trusted-seed",
+      "route": "trusted-lane"
+    },
+    "trust_level": "CERTIFIED",
+    "authority_token": {
+      "id": "281bced3-adac-47a3-8445-55085ae18c5e",
+      "role": "EXECUTOR",
+      "scope": [
+        "execute",
+        "store",
+        "verify"
+      ],
+      "issued_at": "2026-07-26T23:21:08.561241+00:00",
+      "revoked": false
+    },
+    "history": [
+      "auth-check",
+      "verify-state",
+      "route-main",
+      "store-state",
+      "promote-state"
+    ]
+  },
+  {
+    "value": {
+      "mirror": true
+    },
+    "trust_level": "ACTIVE",
+    "authority_token": {
+      "id": "281bced3-adac-47a3-8445-55085ae18c5e",
+      "role": "EXECUTOR",
+      "scope": [
+        "execute",
+        "store",
+        "verify"
+      ],
+      "issued_at": "2026-07-26T23:21:08.561241+00:00",
+      "revoked": false
+    },
+    "history": []
+  }
+]

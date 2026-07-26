@@ -144,3 +144,24 @@
 
 *John E. Arenz — JGA Enterprises, Mendota, Illinois*  
 *Braided Computational Topology, Version 1.0, 2026*
+
+---
+
+## OP-9 — Braid-Relation Edge Case in Tamper Detection
+
+**Problem:** The tamper detection engine must correctly distinguish *legitimate* reorderings of adjacent crossings (those satisfying the braid relation σ_i σ_{i+1} σ_i = σ_{i+1} σ_i σ_{i+1}) from actual tampering (any other reordering of adjacent crossings that produces a different normal form).
+
+**Why it matters:** An adversary who constructs a crossing reordering that satisfies the braid relation is executing a legitimate topological equivalence — not tampering. A detector that flags this case produces false positives, which undermines trust in every genuine fault it reports. This is the exact boundary the verification engine must be built around.
+
+**Formalization:** See `theory/PROOF_OBLIGATIONS.md` — PO-1, Regime B. The proof obligation is: implement Dehornoy handle-reduction or Garside normal form, and prove that any permutation reducible to the same normal form via the braid relation alone is accepted as valid.
+
+**Adversarial test required:** `tests/adversarial/test_tamper.py` must include a test case that:
+1. Constructs a crossing sequence w₁
+2. Constructs w₂ = w₁ with a braid-relation reordering applied (w₁ and w₂ are topologically equivalent)
+3. Asserts that the tamper detector does NOT flag w₂ as tampered
+4. Then constructs w₃ = w₁ with a non-equivalent adjacent reordering applied
+5. Asserts that the tamper detector DOES flag w₃ as tampered
+
+**Priority:** High — this must be resolved before PO-1 can be closed.
+
+**See also:** `theory/PROOF_OBLIGATIONS.md` — PO-1.
