@@ -1,6 +1,6 @@
-# PROVENANCE BRAID (PROVENANCE BRAID)
+# Provenance Braid
 
-> **Status:** See  for current implementation status.  
+> **Status:** See [PROJECT_STATUS.md](../PROJECT_STATUS.md) for current implementation status.  
 > **Author:** John E. Arenz — JGA Enterprises, Mendota, Illinois
 
 ## Purpose
@@ -10,19 +10,30 @@ Track the complete origin and transformation chain of every value throughout com
 The Provenance Braid acts as the permanent record-keeper. Every value carries its full origin story — what it was derived from, by what transformation, under what authority, with what verification.
 
 ## Strand Types
-- **Value strand**: carries the current value\n- **Origin strand**: carries the complete derivation chain\n- **Transform strand**: records each transformation applied\n- **Evidence strand**: permanent provenance record
+- **Value strand**: carries the current value
+- **Origin strand**: carries the complete derivation chain
+- **Transform strand**: records each transformation applied
+- **Evidence strand**: permanent provenance record
 
 ## Crossing Semantics
-| PROV.RECORD_ORIGIN | Attach origin information to a value |\n| PROV.RECORD_TRANSFORM | Record a transformation with input/output hashes |\n| PROV.VERIFY_CHAIN | Verify the complete provenance chain |\n| PROV.QUERY | Retrieve provenance record for a value |
+| Opcode | Behavior |
+|---|---|
+| `PROV.RECORD_ORIGIN` | Attach origin information to a value |
+| `PROV.RECORD_TRANSFORM` | Record a transformation with input/output hashes |
+| `PROV.VERIFY_CHAIN` | Verify the complete provenance chain |
+| `PROV.QUERY` | Retrieve provenance record for a value |
 
 ## Direction of Information Flow
 Forward only: provenance accumulates as computation proceeds. The provenance record is immutable once written.
 
 ## Invariants
-1. Every value carries its complete derivation chain\n2. Provenance records are append-only\n3. Any output can be traced to its input sources
+1. Every value carries its complete derivation chain
+2. Provenance records are append-only
+3. Any output can be traced to its input sources
 
 ## Failure Modes and Recovery
-**Chain break detected**: quarantine affected value; record break location.\n**Transformation hash mismatch**: quarantine and record.
+**Chain break detected**: quarantine affected value; record break location.
+**Transformation hash mismatch**: quarantine and record.
 
 ## Authority Requirements
 Authority token required on the operating strand for all promotion-type crossings. The specific role required depends on the operation:

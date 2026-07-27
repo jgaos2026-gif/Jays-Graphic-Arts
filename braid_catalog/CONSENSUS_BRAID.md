@@ -1,6 +1,6 @@
-# CONSENSUS BRAID (CONSENSUS BRAID)
+# Consensus Braid
 
-> **Status:** See  for current implementation status.  
+> **Status:** See [PROJECT_STATUS.md](../PROJECT_STATUS.md) for current implementation status.  
 > **Author:** John E. Arenz — JGA Enterprises, Mendota, Illinois
 
 ## Purpose
@@ -10,19 +10,30 @@ Produce distributed agreement between multiple agents or nodes without erasing t
 The Consensus Braid coordinates multiple independent agents toward a shared conclusion without requiring any agent to discard its prior conclusions. The consensus record includes the full disagreement history.
 
 ## Strand Types
-- **Agent strands**: one per participating agent (minimum 2)\n- **Proposal strand**: carries each agent's proposed conclusion\n- **Disagreement strand**: records contested positions\n- **Agreement strand**: carries the final consensus with full history
+- **Agent strands**: one per participating agent (minimum 2)
+- **Proposal strand**: carries each agent's proposed conclusion
+- **Disagreement strand**: records contested positions
+- **Agreement strand**: carries the final consensus with full history
 
 ## Crossing Semantics
-| CONS.PROPOSE | Record an agent's proposal |\n| CONS.CONTEST | Record disagreement with evidence |\n| CONS.RESOLVE | Apply resolution function to contested positions |\n| CONS.RATIFY | Certify final consensus with full history |
+| Opcode | Behavior |
+|---|---|
+| `CONS.PROPOSE` | Record an agent's proposal |
+| `CONS.CONTEST` | Record disagreement with evidence |
+| `CONS.RESOLVE` | Apply resolution function to contested positions |
+| `CONS.RATIFY` | Certify final consensus with full history |
 
 ## Direction of Information Flow
 Bidirectional: proposals flow from agents toward consensus; disagreement evidence flows between agents.
 
 ## Invariants
-1. Disagreement history is preserved, not erased\n2. Final consensus references all prior positions\n3. No agent can unilaterally ratify consensus
+1. Disagreement history is preserved, not erased
+2. Final consensus references all prior positions
+3. No agent can unilaterally ratify consensus
 
 ## Failure Modes and Recovery
-**Unresolvable disagreement**: record contradiction knot; escalate.\n**Agent unavailable**: record absence; continue with available agents.
+**Unresolvable disagreement**: record contradiction knot; escalate.
+**Agent unavailable**: record absence; continue with available agents.
 
 ## Authority Requirements
 Authority token required on the operating strand for all promotion-type crossings. The specific role required depends on the operation:

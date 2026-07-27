@@ -1,6 +1,6 @@
-# AUTHORITY BRAID (AUTHORITY BRAID)
+# Authority Braid
 
-> **Status:** See  for current implementation status.  
+> **Status:** See [PROJECT_STATUS.md](../PROJECT_STATUS.md) for current implementation status.  
 > **Author:** John E. Arenz — JGA Enterprises, Mendota, Illinois
 
 ## Purpose
@@ -10,19 +10,30 @@ Enforce structural permission requirements so that no execution can proceed with
 The Authority Braid is the gatekeeper. Every state promotion passes through an authority crossing. The crossing either permits or denies based on the strand's authority token, and records the decision regardless of outcome.
 
 ## Strand Types
-- **Token strand**: carries authority token\n- **State strand**: carries state awaiting authorization\n- **Verdict strand**: carries permit/deny result\n- **Evidence strand**: records all authority checks
+- **Token strand**: carries authority token
+- **State strand**: carries state awaiting authorization
+- **Verdict strand**: carries permit/deny result
+- **Evidence strand**: records all authority checks
 
 ## Crossing Semantics
-| AUTH.CHECK | Verify strand has required authority |\n| AUTH.GATE | Block promotion without authority |\n| AUTH.INHERIT | Child strand inherits scoped authority from parent |\n| AUTH.SCOPE | Restrict authority to defined scope |
+| Opcode | Behavior |
+|---|---|
+| `AUTH.CHECK` | Verify strand has required authority |
+| `AUTH.GATE` | Block promotion without authority |
+| `AUTH.INHERIT` | Child strand inherits scoped authority from parent |
+| `AUTH.SCOPE` | Restrict authority to defined scope |
 
 ## Direction of Information Flow
 Forward: authority check results flow toward the state promotion crossing. Bidirectional: denial evidence flows back to the requesting strand.
 
 ## Invariants
-1. Every state promotion is preceded by AUTH.CHECK\n2. Authority tokens are not duplicated\n3. Every denial is recorded in evidence
+1. Every state promotion is preceded by AUTH.CHECK
+2. Authority tokens are not duplicated
+3. Every denial is recorded in evidence
 
 ## Failure Modes and Recovery
-**Token absent**: deny and record; route to recovery.\n**Token revoked**: deny and record; quarantine strand.
+**Token absent**: deny and record; route to recovery.
+**Token revoked**: deny and record; quarantine strand.
 
 ## Authority Requirements
 Authority token required on the operating strand for all promotion-type crossings. The specific role required depends on the operation:

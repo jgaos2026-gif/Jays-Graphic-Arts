@@ -1,6 +1,6 @@
-# MEMORY BRAID (MEMORY BRAID)
+# Memory Braid
 
-> **Status:** See  for current implementation status.  
+> **Status:** See [PROJECT_STATUS.md](../PROJECT_STATUS.md) for current implementation status.  
 > **Author:** John E. Arenz — JGA Enterprises, Mendota, Illinois
 
 ## Purpose
@@ -10,19 +10,32 @@ Coordinate three-tier state (hot/warm/cold) through executable crossing instruct
 The Memory Braid manages state lifecycle across three tiers. It determines when state moves from active working memory (hot) to recent-inactive (warm) to archived (cold), and coordinates retrieval paths.
 
 ## Strand Types
-- **Hot strand**: active execution state, high bandwidth\n- **Warm strand**: recent inactive state\n- **Cold strand**: archived state, append-only\n- **Circulation strand**: manages tier transitions
+- **Hot strand**: active execution state, high bandwidth
+- **Warm strand**: recent inactive state
+- **Cold strand**: archived state, append-only
+- **Circulation strand**: manages tier transitions
 
 ## Crossing Semantics
-| MEM.STORE_HOT | Write to active memory |\n| MEM.LOAD_HOT | Read from active memory |\n| MEM.DEMOTE_WARM | Move hot state to warm tier |\n| MEM.PROMOTE_HOT | Move warm state back to hot |\n| MEM.ARCHIVE_COLD | Archive warm state permanently |\n| MEM.RETRIEVE_COLD | Fetch archived state to warm |
+| Opcode | Behavior |
+|---|---|
+| `MEM.STORE_HOT` | Write to active memory |
+| `MEM.LOAD_HOT` | Read from active memory |
+| `MEM.DEMOTE_WARM` | Move hot state to warm tier |
+| `MEM.PROMOTE_HOT` | Move warm state back to hot |
+| `MEM.ARCHIVE_COLD` | Archive warm state permanently |
+| `MEM.RETRIEVE_COLD` | Fetch archived state to warm |
 
 ## Direction of Information Flow
 Forward: state moves toward archival (hot → warm → cold). Backward: retrieval moves state toward active use (cold → warm → hot).
 
 ## Invariants
-1. State in cold storage is never deleted\n2. Every tier transition is recorded\n3. Retrieval path is deterministic from evidence log
+1. State in cold storage is never deleted
+2. Every tier transition is recorded
+3. Retrieval path is deterministic from evidence log
 
 ## Failure Modes and Recovery
-**Hot memory capacity exceeded**: demote oldest strand to warm; record demotion.\n**Cold retrieval failure**: halt with evidence; manual intervention required.
+**Hot memory capacity exceeded**: demote oldest strand to warm; record demotion.
+**Cold retrieval failure**: halt with evidence; manual intervention required.
 
 ## Authority Requirements
 Authority token required on the operating strand for all promotion-type crossings. The specific role required depends on the operation:

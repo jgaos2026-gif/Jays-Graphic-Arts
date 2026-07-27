@@ -1,6 +1,6 @@
-# LEARNING BRAID (LEARNING BRAID)
+# Learning Braid
 
-> **Status:** See  for current implementation status.  
+> **Status:** See [PROJECT_STATUS.md](../PROJECT_STATUS.md) for current implementation status.  
 > **Author:** John E. Arenz — JGA Enterprises, Mendota, Illinois
 
 ## Purpose
@@ -10,19 +10,30 @@ Express verified model adaptation as braid crossing operations, so that every le
 The Learning Braid expresses model adaptation as verifiable crossing operations. Each adaptation crossing records what changed, why, under what authority, and with what verification.
 
 ## Strand Types
-- **Model strand**: carries current model state\n- **Update strand**: carries proposed adaptation\n- **Verification strand**: validates the adaptation\n- **History strand**: records all verified adaptations
+- **Model strand**: carries current model state
+- **Update strand**: carries proposed adaptation
+- **Verification strand**: validates the adaptation
+- **History strand**: records all verified adaptations
 
 ## Crossing Semantics
-| LEARN.PROPOSE | Submit proposed model adaptation |\n| LEARN.VERIFY | Verify adaptation improves defined metric |\n| LEARN.APPLY | Apply verified adaptation to model strand |\n| LEARN.ROLLBACK | Reverse adaptation with evidence |
+| Opcode | Behavior |
+|---|---|
+| `LEARN.PROPOSE` | Submit proposed model adaptation |
+| `LEARN.VERIFY` | Verify adaptation improves defined metric |
+| `LEARN.APPLY` | Apply verified adaptation to model strand |
+| `LEARN.ROLLBACK` | Reverse adaptation with evidence |
 
 ## Direction of Information Flow
 Forward: adaptation proposals flow toward model. Verification evidence flows backward to the proposal strand.
 
 ## Invariants
-1. Every adaptation is verified before application\n2. Governing laws are not modifiable by learning crossings\n3. Every learned transformation is reversible
+1. Every adaptation is verified before application
+2. Governing laws are not modifiable by learning crossings
+3. Every learned transformation is reversible
 
 ## Failure Modes and Recovery
-**Adaptation verification fails**: reject adaptation; record failure.\n**Governing law violation**: reject adaptation; record violation attempt.
+**Adaptation verification fails**: reject adaptation; record failure.
+**Governing law violation**: reject adaptation; record violation attempt.
 
 ## Authority Requirements
 Authority token required on the operating strand for all promotion-type crossings. The specific role required depends on the operation:

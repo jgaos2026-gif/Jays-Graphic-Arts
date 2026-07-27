@@ -1,6 +1,6 @@
-# VERIFICATION BRAID (VERIFICATION BRAID)
+# Verification Braid
 
-> **Status:** See  for current implementation status.  
+> **Status:** See [PROJECT_STATUS.md](../PROJECT_STATUS.md) for current implementation status.  
 > **Author:** John E. Arenz — JGA Enterprises, Mendota, Illinois
 
 ## Purpose
@@ -10,19 +10,30 @@ Challenge candidate conclusions by running forward claims against reverse eviden
 The Verification Braid is the skeptic. It does not accept a candidate conclusion until it has been challenged from at least one independent direction. It coordinates forward claims and reverse evidence checks.
 
 ## Strand Types
-- **Claim strand**: carries forward candidate conclusion\n- **Evidence strand**: carries reverse evidence for checking\n- **Check strand**: independent verification path\n- **Verdict strand**: carries verified or rejected result
+- **Claim strand**: carries forward candidate conclusion
+- **Evidence strand**: carries reverse evidence for checking
+- **Check strand**: independent verification path
+- **Verdict strand**: carries verified or rejected result
 
 ## Crossing Semantics
-| VERIF.CHALLENGE | Apply challenge function to candidate claim |\n| VERIF.CROSS_CHECK | Compare claim against independent evidence |\n| VERIF.REJECT | Record rejection with full challenge evidence |\n| VERIF.CERTIFY | Promote claim that survives all challenges |
+| Opcode | Behavior |
+|---|---|
+| `VERIF.CHALLENGE` | Apply challenge function to candidate claim |
+| `VERIF.CROSS_CHECK` | Compare claim against independent evidence |
+| `VERIF.REJECT` | Record rejection with full challenge evidence |
+| `VERIF.CERTIFY` | Promote claim that survives all challenges |
 
 ## Direction of Information Flow
 Bidirectional: forward claims flow one direction; reverse evidence flows the other. The two strands cross at the challenge point.
 
 ## Invariants
-1. A claim is never certified without surviving at least one challenge\n2. Rejected claims are preserved in evidence\n3. Challenge functions are recorded with their results
+1. A claim is never certified without surviving at least one challenge
+2. Rejected claims are preserved in evidence
+3. Challenge functions are recorded with their results
 
 ## Failure Modes and Recovery
-**Challenge fails**: reject claim with full challenge evidence.\n**Independent evidence unavailable**: suspend claim; record suspension.
+**Challenge fails**: reject claim with full challenge evidence.
+**Independent evidence unavailable**: suspend claim; record suspension.
 
 ## Authority Requirements
 Authority token required on the operating strand for all promotion-type crossings. The specific role required depends on the operation:

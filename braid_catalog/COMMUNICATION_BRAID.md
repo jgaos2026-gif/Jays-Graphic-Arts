@@ -1,6 +1,6 @@
-# COMMUNICATION BRAID (COMMUNICATION BRAID)
+# Communication Braid
 
-> **Status:** See  for current implementation status.  
+> **Status:** See [PROJECT_STATUS.md](../PROJECT_STATUS.md) for current implementation status.  
 > **Author:** John E. Arenz — JGA Enterprises, Mendota, Illinois
 
 ## Purpose
@@ -10,19 +10,30 @@ Carry messages between computational contexts with delivery proof, acknowledgmen
 The Communication Braid handles message passing with reliability guarantees. Every message carries a delivery record; every acknowledgment is evidence; every retry is logged.
 
 ## Strand Types
-- **Message strand**: carries the message content\n- **Delivery strand**: carries delivery confirmation\n- **Acknowledgment strand**: carries recipient acknowledgment\n- **Retry strand**: handles retransmission with history
+- **Message strand**: carries the message content
+- **Delivery strand**: carries delivery confirmation
+- **Acknowledgment strand**: carries recipient acknowledgment
+- **Retry strand**: handles retransmission with history
 
 ## Crossing Semantics
-| COMM.SEND | Send message with delivery tracking |\n| COMM.RECEIVE | Record message receipt |\n| COMM.ACKNOWLEDGE | Send acknowledgment with evidence |\n| COMM.RETRY | Retransmit with prior attempt record |
+| Opcode | Behavior |
+|---|---|
+| `COMM.SEND` | Send message with delivery tracking |
+| `COMM.RECEIVE` | Record message receipt |
+| `COMM.ACKNOWLEDGE` | Send acknowledgment with evidence |
+| `COMM.RETRY` | Retransmit with prior attempt record |
 
 ## Direction of Information Flow
 Bidirectional by design: message flows sender → receiver; acknowledgment flows receiver → sender.
 
 ## Invariants
-1. Every sent message has a delivery record\n2. Every retry is distinguishable from original send\n3. Acknowledgments are evidence-backed
+1. Every sent message has a delivery record
+2. Every retry is distinguishable from original send
+3. Acknowledgments are evidence-backed
 
 ## Failure Modes and Recovery
-**Delivery failure**: retry with evidence; archive if max retries exceeded.\n**Acknowledgment timeout**: re-send with prior attempt reference.
+**Delivery failure**: retry with evidence; archive if max retries exceeded.
+**Acknowledgment timeout**: re-send with prior attempt reference.
 
 ## Authority Requirements
 Authority token required on the operating strand for all promotion-type crossings. The specific role required depends on the operation:

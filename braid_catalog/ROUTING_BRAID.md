@@ -1,6 +1,6 @@
-# ROUTING BRAID (ROUTING BRAID)
+# Routing Braid
 
-> **Status:** See  for current implementation status.  
+> **Status:** See [PROJECT_STATUS.md](../PROJECT_STATUS.md) for current implementation status.  
 > **Author:** John E. Arenz — JGA Enterprises, Mendota, Illinois
 
 ## Purpose
@@ -10,19 +10,31 @@ Move information through dynamically selected verified paths while preserving au
 The Routing Braid selects among available execution paths based on defined predicates, load conditions, and authority state. All selected paths are verified. No path is selected that lacks authority or verification crossings.
 
 ## Strand Types
-- **State strand**: carries execution state to be routed\n- **Path strands**: alternative execution routes\n- **Decision strand**: carries routing predicate result\n- **Evidence strand**: records routing decisions
+- **State strand**: carries execution state to be routed
+- **Path strands**: alternative execution routes
+- **Decision strand**: carries routing predicate result
+- **Evidence strand**: records routing decisions
 
 ## Crossing Semantics
-| ROUTE.SELECT | Evaluate predicate; route to selected path |\n| ROUTE.FORK | Duplicate state to multiple parallel paths |\n| ROUTE.JOIN | Merge multiple paths into one |\n| ROUTE.REDIRECT | Reroute based on condition |\n| ROUTE.REPLAY | Reconstruct state from evidence log |
+| Opcode | Behavior |
+|---|---|
+| `ROUTE.SELECT` | Evaluate predicate; route to selected path |
+| `ROUTE.FORK` | Duplicate state to multiple parallel paths |
+| `ROUTE.JOIN` | Merge multiple paths into one |
+| `ROUTE.REDIRECT` | Reroute based on condition |
+| `ROUTE.REPLAY` | Reconstruct state from evidence log |
 
 ## Direction of Information Flow
 Forward: state flows toward selected destination paths. Bidirectional: rejected path evidence flows back to routing decision record.
 
 ## Invariants
-1. Every selected path has authority and verification crossings\n2. Routing decisions are recorded before execution proceeds\n3. No path is selected that lacks a recovery path
+1. Every selected path has authority and verification crossings
+2. Routing decisions are recorded before execution proceeds
+3. No path is selected that lacks a recovery path
 
 ## Failure Modes and Recovery
-**No valid path**: halt with evidence; cannot route.\n**Authority denied on selected path**: reroute to recovery path; record denial.
+**No valid path**: halt with evidence; cannot route.
+**Authority denied on selected path**: reroute to recovery path; record denial.
 
 ## Authority Requirements
 Authority token required on the operating strand for all promotion-type crossings. The specific role required depends on the operation:

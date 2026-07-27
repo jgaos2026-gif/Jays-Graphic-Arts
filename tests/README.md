@@ -1,16 +1,29 @@
 # Tests
 
-This directory will contain tests for the BCT simulator and prototype.
+This directory contains tests for the BCT simulator.
 
-**Status:** Empty — tests pending simulator implementation.
+**Status:** 47 tests passing across all suites.
 
-**Planned test suites:**
-- `unit/` — unit tests for individual crossing instruction implementations
-- `integration/` — integration tests for multi-layer execution
-- `conformance/` — conformance tests against formal specification
-- `property/` — property-based tests for invariant verification
+## Test Suites
 
-**Testing philosophy:**
-Tests must verify formal properties, not just functional behavior. Every governing law should have a corresponding test suite that attempts to violate it.
+- `unit/` — unit tests for crossing execution, authority, evidence, and braid composition
+- `adversarial/` — tests that attempt to violate governing laws (tamper, proof obligations)
+- `bct_001_integrity/` — non-commutativity and crossing-order correctness
+- `bct_002_authority/` — delegation, revocation, HMAC capability tokens
+- `bct_008_evidence/` — evidence manifest schema and denied-action logging
+- `property/` — property-based invariant tests (evidence monotonicity, trust ordering)
+- `replay/` — deterministic replay and tamper-detected replay
+
+## Running Tests
+
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"
+pytest
+```
+
+## Testing Philosophy
+
+Tests verify formal properties, not just functional behavior. Every governing law has at least one test suite that attempts to violate it and confirms the violation is detected and rejected.
 
 *John E. Arenz — JGA Enterprises, Mendota, Illinois*

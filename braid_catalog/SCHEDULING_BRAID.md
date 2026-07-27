@@ -1,6 +1,6 @@
-# SCHEDULING BRAID (SCHEDULING BRAID)
+# Scheduling Braid
 
-> **Status:** See  for current implementation status.  
+> **Status:** See [PROJECT_STATUS.md](../PROJECT_STATUS.md) for current implementation status.  
 > **Author:** John E. Arenz — JGA Enterprises, Mendota, Illinois
 
 ## Purpose
@@ -10,19 +10,30 @@ Coordinate interleaved work from multiple producers while preserving ordering co
 The Scheduling Braid coordinates work from multiple sources while enforcing dependency ordering and recording priority resolution decisions.
 
 ## Strand Types
-- **Work item strands**: one per scheduled task\n- **Dependency strand**: encodes ordering constraints\n- **Priority strand**: carries priority state\n- **Resolution strand**: records how conflicts were resolved
+- **Work item strands**: one per scheduled task
+- **Dependency strand**: encodes ordering constraints
+- **Priority strand**: carries priority state
+- **Resolution strand**: records how conflicts were resolved
 
 ## Crossing Semantics
-| SCHED.ENQUEUE | Add work item with dependencies |\n| SCHED.DEQUEUE | Remove next ready work item |\n| SCHED.RESOLVE_CONFLICT | Apply priority resolution with record |\n| SCHED.COMPLETE | Mark work item completed with evidence |
+| Opcode | Behavior |
+|---|---|
+| `SCHED.ENQUEUE` | Add work item with dependencies |
+| `SCHED.DEQUEUE` | Remove next ready work item |
+| `SCHED.RESOLVE_CONFLICT` | Apply priority resolution with record |
+| `SCHED.COMPLETE` | Mark work item completed with evidence |
 
 ## Direction of Information Flow
 Forward: work items flow from enqueue to dequeue. Dependency ordering constrains forward flow.
 
 ## Invariants
-1. Dependency ordering is enforced structurally\n2. Priority resolution decisions are recorded\n3. Every completed work item has a completion record
+1. Dependency ordering is enforced structurally
+2. Priority resolution decisions are recorded
+3. Every completed work item has a completion record
 
 ## Failure Modes and Recovery
-**Dependency cycle**: detect and record; halt dependent work items.\n**Priority deadlock**: apply defined resolution; record intervention.
+**Dependency cycle**: detect and record; halt dependent work items.
+**Priority deadlock**: apply defined resolution; record intervention.
 
 ## Authority Requirements
 Authority token required on the operating strand for all promotion-type crossings. The specific role required depends on the operation:
