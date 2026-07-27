@@ -10,8 +10,11 @@ braid_simulator/crossing.py
 braid_simulator/evidence.py
 braid_simulator/execution.py
 braid_simulator/instructions.py
+braid_simulator/protection.py
+braid_simulator/recovery.py
 braid_simulator/simulator.py
 braid_simulator/state.py
+braid_simulator/word.py
 braid_simulator.egg-info/PKG-INFO
 braid_simulator.egg-info/SOURCES.txt
 braid_simulator.egg-info/dependency_links.txt
