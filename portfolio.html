@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio — Jays-Graphic-Arts</title>
+  <meta name="description" content="Browse the Jays-Graphic-Arts portfolio — brand identities, print campaigns, digital asset suites, motion graphics, and more, produced entirely by autonomous AI." />
+  <link rel="stylesheet" href="css/fonts.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+
+    .filter-btn {
+      background: transparent;
+      border: 1px solid var(--color-border);
+      border-radius: 100px;
+      padding: 8px 20px;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      color: var(--color-muted);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+      background: rgba(232, 255, 0, 0.05);
+    }
+
+    .portfolio-full-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    .portfolio-card[data-hidden="true"] {
+      display: none;
+    }
+
+    .case-study {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-top: 1px solid var(--color-border);
+      margin-top: 80px;
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .case-study-header {
+      padding: 48px;
+      border-bottom: 1px solid var(--color-border);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 600px) {
+      .case-study-header {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .case-study-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .case-study-stat {
+      text-align: right;
+    }
+
+    @media (max-width: 600px) {
+      .case-study-stat { text-align: left; }
+    }
+
+    .case-study-stat-value {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--color-accent);
+    }
+
+    .case-study-stat-label {
+      font-size: 0.8rem;
+      color: var(--color-muted);
+    }
+
+    .case-study-body {
+      padding: 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+    }
+
+    @media (max-width: 768px) {
+      .case-study-body {
+        grid-template-columns: 1fr;
+        padding: 32px;
+      }
+
+      .case-study-header {
+        padding: 32px;
+      }
+    }
+
+    .case-study-section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      margin-bottom: 12px;
+    }
+
+    .case-study-text {
+      font-size: 0.9rem;
+      color: var(--color-muted);
+      line-height: 1.8;
+    }
+
+    .deliverables-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .deliverable-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.875rem;
+      color: var(--color-muted);
+    }
+
+    .deliverable-item::before {
+      content: '→';
+      color: var(--color-accent);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav" id="nav">
+    <div class="container nav-inner">
+      <a href="index.html" class="nav-logo">Jays<span>.</span></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="portfolio.html" class="active">Portfolio</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="docs/AI_CAPABILITIES.md">Docs</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="contact.html" class="btn btn-primary">Start a Project</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Page Hero -->
+  <div class="page-hero">
+    <div class="container">
+      <div class="section-label">Portfolio</div>
+      <h1 class="page-hero-title">Built by AI. <span class="accent">Trusted by clients.</span></h1>
+      <p class="page-hero-subtitle">A curated selection of projects across brand identity, print, digital, and motion — all produced autonomously.</p>
+    </div>
+  </div>
+
+  <!-- Portfolio Grid -->
+  <section>
+    <div class="container">
+      <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all">All Work</button>
+        <button class="filter-btn" data-filter="brand">Brand Identity</button>
+        <button class="filter-btn" data-filter="print">Print</button>
+        <button class="filter-btn" data-filter="digital">Digital</button>
+        <button class="filter-btn" data-filter="motion">Motion</button>
+        <button class="filter-btn" data-filter="content">Content</button>
+      </div>
+      <div class="portfolio-full-grid" id="portfolioGrid">
+        <div class="portfolio-card" data-category="brand">
+          <div class="portfolio-thumb portfolio-thumb-1">🏷️</div>
+          <div class="portfolio-info">
+            <div class="portfolio-category">Brand Identity</div>
+            <div class="portfolio-name">Nova Tech — Full Brand System</div>
+            <div class="portfolio-client">SaaS Startup · San Francisco, CA</div>
+          </div>
+        </div>
+        <div class="portfolio-card" data-category="print">
+          <div class="portfolio-thumb portfolio-thumb-2">📦</div>
+          <div class="portfolio-info">
+            <div class="portfolio-category">Packaging</div>
+            <div class="portfolio-name">Bloom Botanics — Product Line</div>
+            <div class="portfolio-client">Wellness Brand · London, UK</div>
+          </div>
+        </div>
+        <div class="portfolio-card" data-category="print">
+          <div class="portfolio-thumb portfolio-thumb-3">📊</div>
+          <div class="portfolio-info">
+            <div class="portfolio-category">Print &amp; Document</div>
+            <div class="portfolio-name">Meridian Capital — Pitch Deck</div>
+            <div class="portfolio-client">Private Equity · New York, NY</div>
+          </div>
+        </div>
+        <div class="portfolio-card" data-category="digital">
+          <div class="portfolio-thumb portfolio-thumb-4">📱</div>
+          <div class="portfolio-info">
+            <div class="portfolio-category">Social Media</div>
+            <div class="portfolio-name">FitPulse — Campaign Assets</div>
+            <div class="portfolio-client">Fitness App · Sydney, AU</div>
+          </div>
+        </div>
+        <div class="portfolio-card" data-category="digital">
+          <div class="portfolio-thumb portfolio-thumb-5">🌐</div>
+          <div class="portfolio-info">
+            <div class="portfolio-category">Web Display</div>
+            <div class="portfolio-name">Apex Retail — Banner Suite</div>
+            <div class="portfolio-client">E-Commerce · Toronto, CA</div>
+          </div>
+        </div>
+        <div class="portfolio-card" data-category="motion">
+          <div class="portfolio-thumb portfolio-thumb-6">🎬</div>
+          <div class="portfolio-info">
+            <div class="portfolio-category">Motion</div>
+            <div class="portfolio-name">Scarlet Media — Logo Animation</div>
+            <div class="portfolio-client">Media Agency · Dubai, UAE</div>
+          </div>
+        </div>
+        <div class="portfolio-card" data-category="brand">
+          <div class="portfolio-thumb" style="background: linear-gradient(135deg, #0a3d2b, #1a6b4a);">🌿</div>
+          <div class="portfolio-info">
+            <div class="portfolio-category">Brand Identity</div>
+            <div class="portfolio-name">GreenRoot — Brand Refresh</div>
+            <div class="portfolio-client">Sustainable Food · Amsterdam, NL</div>
+          </div>
+        </div>
+        <div class="portfolio-card" data-category="content">
+          <div class="portfolio-thumb" style="background: linear-gradient(135deg, #1a0533, #3d1070);">✍️</div>
+          <div class="portfolio-info">
+            <div class="portfolio-category">Marketing Content</div>
+            <div class="portfolio-name">Vantage SaaS — Content Programme</div>
+            <div class="portfolio-client">B2B SaaS · Austin, TX</div>
+          </div>
+        </div>
+        <div class="portfolio-card" data-category="print">
+          <div class="portfolio-thumb" style="background: linear-gradient(135deg, #1a1200, #4a3800);">🖨️</div>
+          <div class="portfolio-info">
+            <div class="portfolio-category">Print</div>
+            <div class="portfolio-name">Aurum Coffee — Campaign Collateral</div>
+            <div class="portfolio-client">Specialty Coffee · Melbourne, AU</div>
+          </div>
+        </div>
+        <div class="portfolio-card" data-category="digital">
+          <div class="portfolio-thumb" style="background: linear-gradient(135deg, #001a33, #002b52);">📧</div>
+          <div class="portfolio-info">
+            <div class="portfolio-category">Email Templates</div>
+            <div class="portfolio-name">Harbourside Hotel — Email Suite</div>
+            <div class="portfolio-client">Hospitality · Cape Town, ZA</div>
+          </div>
+        </div>
+        <div class="portfolio-card" data-category="motion">
+          <div class="portfolio-thumb" style="background: linear-gradient(135deg, #1a001a, #3d003d);">🎞️</div>
+          <div class="portfolio-info">
+            <div class="portfolio-category">Motion</div>
+            <div class="portfolio-name">Prism Analytics — Animated Infographics</div>
+            <div class="portfolio-client">Data Intelligence · London, UK</div>
+          </div>
+        </div>
+        <div class="portfolio-card" data-category="brand">
+          <div class="portfolio-thumb" style="background: linear-gradient(135deg, #00141a, #002b38);">🔷</div>
+          <div class="portfolio-info">
+            <div class="portfolio-category">Brand Identity</div>
+            <div class="portfolio-name">ClearWave Fintech — Identity System</div>
+            <div class="portfolio-client">Fintech Startup · Singapore</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Featured Case Study -->
+      <div class="case-study">
+        <div class="case-study-header">
+          <div class="case-study-meta">
+            <div class="section-label">Featured Case Study</div>
+            <h2>Nova Tech — Full Brand System</h2>
+            <p style="color: var(--color-muted); font-size: 0.95rem;">From a 10-minute brief to a complete, investor-ready brand identity — delivered in 3 days with zero revision requests.</p>
+          </div>
+          <div class="case-study-stat">
+            <div class="case-study-stat-value">3 days</div>
+            <div class="case-study-stat-label">Total delivery time</div>
+          </div>
+        </div>
+        <div class="case-study-body">
+          <div>
+            <div class="case-study-section-title">The Brief</div>
+            <p class="case-study-text">Nova Tech needed a brand identity from scratch before their Series A announcement. Budget: $850. Timeline: under one week. Requirements: a mark that felt "technical but human, confident without being corporate."</p>
+          </div>
+          <div>
+            <div class="case-study-section-title">The Outcome</div>
+            <p class="case-study-text">Three logo concepts generated within 4 hours of brief submission. Client selected concept two with one minor tweak (requested in plain English). Full brand system delivered 64 hours after kick-off. First-pass approval — no additional revisions.</p>
+          </div>
+          <div>
+            <div class="case-study-section-title">Deliverables</div>
+            <div class="deliverables-list">
+              <div class="deliverable-item">Logo suite (primary, horizontal, icon-only)</div>
+              <div class="deliverable-item">Color palette with accessibility scores</div>
+              <div class="deliverable-item">Typography system (display + body pairing)</div>
+              <div class="deliverable-item">12-page brand style guide (PDF)</div>
+              <div class="deliverable-item">Business card &amp; letterhead templates</div>
+              <div class="deliverable-item">Social media profile &amp; cover templates</div>
+              <div class="deliverable-item">All source files (AI, EPS, SVG, PNG, PDF)</div>
+            </div>
+          </div>
+          <div>
+            <div class="case-study-section-title">QA Summary</div>
+            <p class="case-study-text">Trademark scan: no conflicts found in USPTO, EUIPO, or WIPO databases. All color combinations passed WCAG 2.1 AA contrast checks. Confidence score on final delivery: 96/100.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="container">
+      <div class="cta-inner">
+        <div class="section-label">Ready?</div>
+        <h2>Your project could be <span class="accent">next.</span></h2>
+        <p>Submit a brief today and receive a scoped quote in under 60 seconds.</p>
+        <div class="cta-actions">
+          <a href="contact.html" class="btn btn-primary">Start a Project</a>
+          <a href="services.html" class="btn btn-outline">View Services</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="nav-logo">Jays<span>.</span></a>
+          <p>The world's first fully autonomous AI-run graphic arts studio. Enterprise-grade design at startup speed.</p>
+        </div>
+        <div>
+          <div class="footer-col-title">Services</div>
+          <ul class="footer-links">
+            <li><a href="services.html#brand">Brand Identity</a></li>
+            <li><a href="services.html#print">Print Production</a></li>
+            <li><a href="services.html#digital">Digital Assets</a></li>
+            <li><a href="services.html#motion">Motion Graphics</a></li>
+            <li><a href="services.html#content">Marketing Content</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Company</div>
+          <ul class="footer-links">
+            <li><a href="portfolio.html">Portfolio</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="docs/AI_CAPABILITIES.md">AI Capabilities</a></li>
+            <li><a href="docs/AI_RELIABILITY.md">AI Reliability</a></li>
+            <li><a href="docs/COMPLIANCE.md">Compliance</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Legal</div>
+          <ul class="footer-links">
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="docs/COMPLIANCE.md">GDPR / CCPA</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Jays-Graphic-Arts. All rights reserved.</p>
+        <div class="footer-badges">
+          <span class="footer-badge">🔒 GDPR Compliant</span>
+          <span class="footer-badge">✅ PCI DSS SAQ-A</span>
+          <span class="footer-badge">♿ WCAG 2.1 AA</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script>
+    // Portfolio filter
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const cards = document.querySelectorAll('#portfolioGrid .portfolio-card');
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.dataset.filter;
+        cards.forEach(card => {
+          if (filter === 'all' || card.dataset.category === filter) {
+            card.removeAttribute('data-hidden');
+          } else {
+            card.setAttribute('data-hidden', 'true');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
