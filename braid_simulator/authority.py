@@ -97,7 +97,9 @@ class AuthorityManager:
     ) -> AuthorityToken:
         requested_scope = tuple(sorted(set(scope)))
         if not requested_scope:
-            raise ValueError("delegated scope must not be empty")
+            raise ValueError(
+                f"delegated scope must not be empty; attempted to delegate with scope: {set(scope)!r}"
+            )
         if not self.check_scope(parent, requested_scope):
             raise ValueError("delegated scope must be contained within parent scope")
         return self.issue_token(

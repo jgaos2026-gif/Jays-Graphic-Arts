@@ -31,6 +31,9 @@ from collections import deque
 from typing import NamedTuple
 
 # Safety bound to prevent runaway BFS on unexpectedly large inputs.
+# For positive braid words of length ≤ 12 with n ≤ 5 strands the equivalence
+# class is always well under 1 000 elements; 50 000 gives ample headroom while
+# still guarding against pathological user-supplied words.
 _MAX_STATES: int = 50_000
 
 
@@ -229,6 +232,13 @@ def reduce_to_normal_form(word: BraidWord) -> NormalForm:
     Correctness guarantee (positive words): For braid words with no inverse
     generators, the BFS is provably complete — all derivable equivalences via
     far commutativity and the braid relation are explored.
+
+    LIMITATION (mixed-sign words): The mixed-sign braid relation
+    (e.g. σ_i σ_{i+1}^{-1} σ_i^{-1} = σ_{i+1}^{-1} σ_i σ_{i+1}^{-1}) is
+    not applied directly; it is reachable only via free cancellation combined
+    with positive or negative braid rules.  All tests in this repository use
+    positive braid generators only, so this limitation does not affect their
+    correctness.  For general (mixed-sign) inputs use Garside normal form.
 
     Raises RuntimeError if the equivalence class exceeds _MAX_STATES elements
     (safety guard against pathological inputs; not triggered by normal use).
