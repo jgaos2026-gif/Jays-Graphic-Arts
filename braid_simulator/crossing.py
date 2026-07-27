@@ -59,6 +59,23 @@ def _touch(state: StrandState, tag: str) -> None:
     state.history.append(tag)
 
 
+def _resolve_token(state: StrandState, context: Any) -> Any:
+    """
+    Return the live (manager-registry) version of a strand's authority token.
+
+    AuthorityToken is an immutable value object.  When revoke_token() is called,
+    the manager creates a new revoked object and replaces the registry entry, but
+    strands that were cloned before revocation hold the old snapshot.  This helper
+    consults the manager's registry so that all Law-9 checks always reflect the
+    current revocation status.
+    """
+    token = state.authority_token
+    if token is None:
+        return None
+    live = context.authority_manager.get_token(token.id)
+    return live if live is not None else token
+
+
 def _execute_auth(crossing: ExecutableCrossing, strands: list[StrandState], context: Any) -> str:
     state_i = strands[crossing.strand_i]
     opcode = AuthOpcode(crossing.opcode)
@@ -98,7 +115,8 @@ def _execute_integ(crossing: ExecutableCrossing, strands: list[StrandState], con
     state_i = strands[crossing.strand_i]
     opcode = IntegrityOpcode(crossing.opcode)
     if opcode == IntegrityOpcode.VERIFY:
-        if state_i.authority_token is None or state_i.authority_token.revoked:
+        live_token = _resolve_token(state_i, context)
+        if live_token is None or live_token.revoked:
             raise context.law_violation("Law 9: verified strands require an explicit non-revoked authority token")
         if not context.last_auth_result.get(crossing.strand_i, False):
             raise context.law_violation("Law 4: AUTH.CHECK must precede INTEG.VERIFY")
@@ -122,7 +140,8 @@ def _execute_integ(crossing: ExecutableCrossing, strands: list[StrandState], con
     if opcode == IntegrityOpcode.PROMOTE:
         if state_i.trust_level == TrustLevel.ACTIVE:
             raise context.law_violation("Law 1: active state cannot be promoted without INTEG.VERIFY")
-        if state_i.authority_token is None or state_i.authority_token.revoked:
+        live_token = _resolve_token(state_i, context)
+        if live_token is None or live_token.revoked:
             raise context.law_violation("Law 9: promoted strands require an explicit non-revoked authority token")
         if not context.last_auth_result.get(crossing.strand_i, False):
             raise context.law_violation("Law 4: AUTH.CHECK must precede state promotion")
@@ -143,7 +162,8 @@ def _execute_integ(crossing: ExecutableCrossing, strands: list[StrandState], con
     if opcode == IntegrityOpcode.SEAL:
         if state_i.trust_level == TrustLevel.ACTIVE:
             raise context.law_violation("Law 1: active state cannot be sealed without verification")
-        if state_i.authority_token is None or state_i.authority_token.revoked:
+        live_token = _resolve_token(state_i, context)
+        if live_token is None or live_token.revoked:
             raise context.law_violation("Law 9: sealed strands require an explicit non-revoked authority token")
         if not context.last_auth_result.get(crossing.strand_i, False):
             raise context.law_violation("Law 4: AUTH.CHECK must precede state promotion")

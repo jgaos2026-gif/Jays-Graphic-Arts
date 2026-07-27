@@ -76,10 +76,16 @@ class AuthorityManager:
         return revoked
 
     def check_scope(self, token: AuthorityToken | None, required_scope: str | Iterable[str]) -> bool:
-        if token is None or token.revoked:
+        if token is None:
+            return False
+        # Look up the live registry entry so that post-issuance revocations are
+        # visible even when callers hold a stale AuthorityToken snapshot.
+        live = self._tokens.get(token.id)
+        effective = live if live is not None else token
+        if effective.revoked:
             return False
         required = {required_scope} if isinstance(required_scope, str) else set(required_scope)
-        return required.issubset(set(token.scope))
+        return required.issubset(set(effective.scope))
 
     def delegate_token(
         self,
@@ -90,6 +96,8 @@ class AuthorityManager:
         token_id: str | None = None,
     ) -> AuthorityToken:
         requested_scope = tuple(sorted(set(scope)))
+        if not requested_scope:
+            raise ValueError("delegated scope must not be empty")
         if not self.check_scope(parent, requested_scope):
             raise ValueError("delegated scope must be contained within parent scope")
         return self.issue_token(

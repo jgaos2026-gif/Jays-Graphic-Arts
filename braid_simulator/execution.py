@@ -14,6 +14,19 @@ class LawViolation(RuntimeError):
     pass
 
 
+class TopologicalMismatchFault(LawViolation):
+    """
+    Raised when two braid words that should be equivalent reduce to different
+    normal forms — i.e., the reordering is not an instance of far-commutativity
+    or the braid relation and is therefore a topological fault.
+
+    This is the exception that the verification engine emits for proof obligation PO-1.
+    An adversary who reorders crossings in a way that satisfies the braid relation
+    will NOT trigger this fault (that reordering is a legitimate Reidemeister move).
+    An adversary who performs an illegal adjacent transposition WILL trigger it.
+    """
+
+
 @dataclass
 class Checkpoint:
     tag: str

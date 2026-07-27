@@ -2,7 +2,7 @@ from .authority import AuthorityManager, AuthorityToken
 from .braid import ExecutableBraid
 from .crossing import CrossingDirection, ExecutableCrossing
 from .evidence import EvidenceLog, EvidenceRecord
-from .execution import BraidExecutor, Checkpoint, ExecutionResult, LawViolation
+from .execution import BraidExecutor, Checkpoint, ExecutionResult, LawViolation, TopologicalMismatchFault
 from .instructions import (
     AuthOpcode,
     InstructionFamily,
@@ -12,13 +12,26 @@ from .instructions import (
     RoleOpcode,
     RoutingOpcode,
 )
+from .protection import halted_strands, quarantine_neighborhood
+from .recovery import verify_reverse
 from .state import StrandState, TrustLevel
+from .word import (
+    BraidWord,
+    Generator,
+    NormalForm,
+    check_topological_equivalence,
+    is_equivalent,
+    reduce_to_normal_form,
+    sigma,
+    sigma_inv,
+)
 
 __all__ = [
     "AuthOpcode",
     "AuthorityManager",
     "AuthorityToken",
     "BraidExecutor",
+    "BraidWord",
     "Checkpoint",
     "CrossingDirection",
     "EvidenceLog",
@@ -26,13 +39,24 @@ __all__ = [
     "ExecutableBraid",
     "ExecutableCrossing",
     "ExecutionResult",
+    "Generator",
     "InstructionFamily",
     "IntegrityOpcode",
     "LawViolation",
     "MemoryOpcode",
+    "NormalForm",
     "RecoveryOpcode",
     "RoleOpcode",
     "RoutingOpcode",
     "StrandState",
+    "TopologicalMismatchFault",
     "TrustLevel",
+    "check_topological_equivalence",
+    "halted_strands",
+    "is_equivalent",
+    "quarantine_neighborhood",
+    "reduce_to_normal_form",
+    "sigma",
+    "sigma_inv",
+    "verify_reverse",
 ]
