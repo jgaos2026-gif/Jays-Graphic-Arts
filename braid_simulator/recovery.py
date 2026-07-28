@@ -30,6 +30,42 @@ from .instructions import IntegrityOpcode, RecoveryOpcode, RoleOpcode, RoutingOp
 from .state import StrandState, TrustLevel
 
 
+def _apply_fork_semantics(
+    strands: list[StrandState],
+    i: int,
+    j: int,
+) -> None:
+    """
+    Replicate ROUTE.FORK's clone-before-touch semantics during hash-chain replay.
+
+    The forward executor (crossing.py) clones strand_i into strand_j BEFORE
+    calling _touch on either strand.  This helper must therefore be called
+    before the standard history-append step in _apply_verified_transition.
+    Mirrors crossing.py lines 196-198:
+        strands[j] = state_i.clone()
+        _touch(state_i, tag)   ← happens outside this helper
+        _touch(strands[j], tag) ← happens in the strand_j block
+    """
+    strands[j] = strands[i].clone()
+
+
+def _apply_transfer_semantics(
+    strands: list[StrandState],
+    i: int,
+    j: int,
+) -> None:
+    """
+    Replicate ROLE.TRANSFER's atomic token-move during hash-chain replay.
+
+    Mirrors crossing.py lines 274-275:
+        state_j.authority_token = state_i.authority_token
+        state_i.authority_token = None
+    Both the forward executor and this replay helper must stay in sync.
+    """
+    strands[j].authority_token = strands[i].authority_token
+    strands[i].authority_token = None
+
+
 def _apply_verified_transition(record: EvidenceRecord, strands: list[StrandState]) -> None:
     """
     Apply the minimum deterministic state update implied by a single evidence record.
@@ -64,13 +100,11 @@ def _apply_verified_transition(record: EvidenceRecord, strands: list[StrandState
     if i >= len(strands):
         return
 
-    # ROUTE.FORK: strand_j is replaced with a clone of strand_i BEFORE either
-    # strand is touched.  This must happen first so that when we append the tag
-    # to strand_i below, the clone already exists and receives the same tag
-    # independently via the strand_j block at the end of this function.
+    # ROUTE.FORK: clone strand_i into strand_j BEFORE touching either strand.
+    # See _apply_fork_semantics() for the ordering rationale.
     if (family == "ROUTE" and opcode == RoutingOpcode.FORK.value
             and j != i and 0 <= j < len(strands)):
-        strands[j] = strands[i].clone()
+        _apply_fork_semantics(strands, i, j)
 
     # Every crossing calls _touch(state_i, tag) — append tag to strand_i history.
     strands[i].history.append(record.tag)
@@ -101,10 +135,10 @@ def _apply_verified_transition(record: EvidenceRecord, strands: list[StrandState
         ("ROLE", RoleOpcode.DELEGATE.value),
     }
     if (family, opcode) in _ALSO_TOUCH_J and j != i and 0 <= j < len(strands):
-        # ROLE.TRANSFER: authority_token moves from strand_i to strand_j.
+        # ROLE.TRANSFER: authority_token moves atomically from strand_i to strand_j.
+        # See _apply_transfer_semantics() which mirrors crossing.py lines 274-275.
         if family == "ROLE" and opcode == RoleOpcode.TRANSFER.value:
-            strands[j].authority_token = strands[i].authority_token
-            strands[i].authority_token = None
+            _apply_transfer_semantics(strands, i, j)
         strands[j].history.append(record.tag)
 
 
