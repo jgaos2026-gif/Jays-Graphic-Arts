@@ -298,7 +298,8 @@ def _execute_role(crossing: ExecutableCrossing, strands: list[StrandState], cont
         return "PASS"
     if opcode == RoleOpcode.VERIFY_ROLE:
         expected_role = crossing.operands["role"]
-        passed = state_i.authority_token is not None and state_i.authority_token.role == expected_role and not state_i.authority_token.revoked
+        live_token = _resolve_token(state_i, context)
+        passed = live_token is not None and live_token.role == expected_role and not live_token.revoked
         _touch(state_i, crossing.tag)
         return "PASS" if passed else "FAIL"
     raise context.law_violation(f"unsupported ROLE opcode: {crossing.opcode}")

@@ -12,6 +12,7 @@ from .instructions import (
     RoleOpcode,
     RoutingOpcode,
 )
+from .persistence import BraidSession, PersistentEvidenceStore
 from .protection import halted_strands, quarantine_neighborhood
 from .recovery import verify_reverse
 from .state import StrandState, TrustLevel
@@ -31,6 +32,7 @@ __all__ = [
     "AuthorityManager",
     "AuthorityToken",
     "BraidExecutor",
+    "BraidSession",
     "BraidWord",
     "Checkpoint",
     "CrossingDirection",
@@ -45,6 +47,7 @@ __all__ = [
     "LawViolation",
     "MemoryOpcode",
     "NormalForm",
+    "PersistentEvidenceStore",
     "RecoveryOpcode",
     "RoleOpcode",
     "RoutingOpcode",

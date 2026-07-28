@@ -64,6 +64,14 @@ def _apply_verified_transition(record: EvidenceRecord, strands: list[StrandState
     if i >= len(strands):
         return
 
+    # ROUTE.FORK: strand_j is replaced with a clone of strand_i BEFORE either
+    # strand is touched.  This must happen first so that when we append the tag
+    # to strand_i below, the clone already exists and receives the same tag
+    # independently via the strand_j block at the end of this function.
+    if (family == "ROUTE" and opcode == RoutingOpcode.FORK.value
+            and j != i and 0 <= j < len(strands)):
+        strands[j] = strands[i].clone()
+
     # Every crossing calls _touch(state_i, tag) — append tag to strand_i history.
     strands[i].history.append(record.tag)
 
@@ -93,6 +101,10 @@ def _apply_verified_transition(record: EvidenceRecord, strands: list[StrandState
         ("ROLE", RoleOpcode.DELEGATE.value),
     }
     if (family, opcode) in _ALSO_TOUCH_J and j != i and 0 <= j < len(strands):
+        # ROLE.TRANSFER: authority_token moves from strand_i to strand_j.
+        if family == "ROLE" and opcode == RoleOpcode.TRANSFER.value:
+            strands[j].authority_token = strands[i].authority_token
+            strands[i].authority_token = None
         strands[j].history.append(record.tag)
 
 

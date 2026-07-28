@@ -42,10 +42,15 @@ The following exist as working code in `braid_simulator/` with passing tests:
 - Recovery: restoration from last trusted checkpoint with evidence intact
 
 ### Tests Passing
-- Unit tests: evidence log, crossing execution, authority management, braid composition
-- Property tests: evidence monotonicity, trust level ordering
-- Adversarial tests: tamper detection, authority bypass attempts, evidence deletion attempts
+- **246 tests passing** across 26 test files
+- Unit tests: evidence log, crossing execution, authority management, braid composition, StrandState serialization, braid algebra engine, verify_reverse edge cases, protection helpers
+- Property tests: evidence monotonicity, trust level ordering, Artin braid relations, group axioms, normal form idempotence
+- Adversarial tests: tamper detection, authority bypass attempts, evidence deletion attempts, proof obligations
 - Replay tests: deterministic replay, tamper-detected replay
+- Opcode-family tests: all AUTH / INTEG / RECOV / ROUTE / ROLE / MEM opcodes individually verified
+- Law tests: all 10 governing laws — violations blocked, compliance confirmed
+- Integration tests: end-to-end pipelines (fork/join, role transfer, recovery, persistence, auth inheritance)
+- Performance tests: BENCH-H5 throughput benchmarks (B5-A through B5-D)
 
 ### Demos
 - `examples/integrity_demo/` — full cycle: create → execute → tamper → detect → quarantine → recover → proof report (JSON)
@@ -60,7 +65,7 @@ The following exist as working code in `braid_simulator/` with passing tests:
 |---|---|---|
 | Atomic Proof Core | Not implemented | High — Phase 2 |
 | Formal semantics (OP-2) | Not written | High — Phase 1 |
-| SQLite persistence backend | Not implemented | Medium — Phase 2 |
+| SQLite persistence backend | **Implemented** (`braid_simulator/persistence.py`) | ✅ Complete |
 | Distributed braid runtime | Not designed | Low — Phase 6 |
 | Hardware implementation | Not designed | Long-term |
 | Consensus braid | Defined only | Phase 3 |
