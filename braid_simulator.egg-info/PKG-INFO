@@ -2,6 +2,20 @@ Metadata-Version: 2.4
 Name: braid-simulator
 Version: 0.1.0
 Summary: Braided Computational Topology simulator
+Author: John E. Arenz
+License: MIT
+Project-URL: Homepage, https://github.com/jgaos2026-gif/Jays-Graphic-Arts
+Project-URL: Repository, https://github.com/jgaos2026-gif/Jays-Graphic-Arts
+Keywords: braid groups,computational topology,executable braids,verification architecture,authority,recovery,provenance,braid ISA
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
 Requires-Python: >=3.10
 Description-Content-Type: text/markdown
 License-File: LICENSE
@@ -105,6 +119,57 @@ braided-computational-topology/
 ├── proofs/
 ├── tests/
 └── papers/
+```
+
+---
+
+## Installation
+
+Requires Python 3.10 or later.
+
+```bash
+pip install git+https://github.com/jgaos2026-gif/Jays-Graphic-Arts.git
+```
+
+For local development (includes test dependencies):
+
+```bash
+git clone https://github.com/jgaos2026-gif/Jays-Graphic-Arts.git
+cd Jays-Graphic-Arts
+pip install -e ".[dev]"
+```
+
+Verify the installation:
+
+```bash
+braid-simulator --help
+python -c "import braid_simulator; print(braid_simulator.__version__)"
+```
+
+---
+
+## Quick Start
+
+```python
+from braid_simulator import ExecutableBraid, ExecutableCrossing, BraidExecutor, StrandState
+from braid_simulator import InstructionFamily, IntegrityOpcode, CrossingDirection
+
+strands = [StrandState(value={"data": "hello"}), StrandState(value={"data": "world"})]
+braid = ExecutableBraid(
+    strands=strands,
+    crossings=[
+        ExecutableCrossing(
+            tag="c1",
+            strand_i=0,
+            strand_j=1,
+            direction=CrossingDirection.OVER,
+            family=InstructionFamily.INTEG,
+            opcode=IntegrityOpcode.VERIFY.value,
+        )
+    ],
+)
+result = BraidExecutor().run(braid)
+print(result.proof_report)
 ```
 
 ---

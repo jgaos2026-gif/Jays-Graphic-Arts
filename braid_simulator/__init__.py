@@ -1,3 +1,5 @@
+__version__ = "0.1.0"
+
 from .authority import AuthorityManager, AuthorityToken
 from .braid import ExecutableBraid
 from .crossing import CrossingDirection, ExecutableCrossing
@@ -28,6 +30,7 @@ from .word import (
 )
 
 __all__ = [
+    "__version__",
     "AuthOpcode",
     "AuthorityManager",
     "AuthorityToken",

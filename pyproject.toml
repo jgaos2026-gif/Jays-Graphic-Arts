@@ -7,10 +7,39 @@ name = "braid-simulator"
 version = "0.1.0"
 description = "Braided Computational Topology simulator"
 readme = "README.md"
+license = { text = "MIT" }
+authors = [
+  { name = "John E. Arenz" },
+]
 requires-python = ">=3.10"
+keywords = [
+  "braid groups",
+  "computational topology",
+  "executable braids",
+  "verification architecture",
+  "authority",
+  "recovery",
+  "provenance",
+  "braid ISA",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
 dependencies = [
   "click>=8.1,<9",
 ]
+
+[project.urls]
+Homepage = "https://github.com/jgaos2026-gif/Jays-Graphic-Arts"
+Repository = "https://github.com/jgaos2026-gif/Jays-Graphic-Arts"
 
 [project.optional-dependencies]
 dev = [

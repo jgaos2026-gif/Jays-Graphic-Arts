@@ -96,6 +96,57 @@ braided-computational-topology/
 
 ---
 
+## Installation
+
+Requires Python 3.10 or later.
+
+```bash
+pip install git+https://github.com/jgaos2026-gif/Jays-Graphic-Arts.git
+```
+
+For local development (includes test dependencies):
+
+```bash
+git clone https://github.com/jgaos2026-gif/Jays-Graphic-Arts.git
+cd Jays-Graphic-Arts
+pip install -e ".[dev]"
+```
+
+Verify the installation:
+
+```bash
+braid-simulator --help
+python -c "import braid_simulator; print(braid_simulator.__version__)"
+```
+
+---
+
+## Quick Start
+
+```python
+from braid_simulator import ExecutableBraid, ExecutableCrossing, BraidExecutor, StrandState
+from braid_simulator import InstructionFamily, IntegrityOpcode, CrossingDirection
+
+strands = [StrandState(value={"data": "hello"}), StrandState(value={"data": "world"})]
+braid = ExecutableBraid(
+    strands=strands,
+    crossings=[
+        ExecutableCrossing(
+            tag="c1",
+            strand_i=0,
+            strand_j=1,
+            direction=CrossingDirection.OVER,
+            family=InstructionFamily.INTEG,
+            opcode=IntegrityOpcode.VERIFY.value,
+        )
+    ],
+)
+result = BraidExecutor().run(braid)
+print(result.proof_report)
+```
+
+---
+
 ## Core Laws
 
 These ten laws govern the BCT architecture and are inherited by all subsystems.
