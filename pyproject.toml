@@ -53,5 +53,5 @@ braid-simulator = "braid_simulator.simulator:main"
 packages = ["braid_simulator", "examples", "examples.integrity_demo", "examples.routing_demo", "examples.recovery_demo"]
 
 [tool.pytest.ini_options]
-addopts = "-ra"
+addopts = "-ra --junitxml=test-results/results.xml"
 testpaths = ["tests"]
