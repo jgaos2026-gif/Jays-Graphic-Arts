@@ -1,0 +1,57 @@
+[
+  {
+    "tag": "auth-check",
+    "family": "AUTH",
+    "opcode": "CHECK",
+    "timestamp": 0,
+    "strand_i": 0,
+    "strand_j": 1,
+    "input_hash": "348b637bc1555883c6b94b6681cbdf65ab5b030913a5ddaa896a44abf7d09ccb",
+    "output_hash": "c0400eba5f0a1a0985c36d9aa06f7a2886496ce023968c178e124115ae172eaa",
+    "result": "PASS"
+  },
+  {
+    "tag": "verify-state",
+    "family": "INTEG",
+    "opcode": "VERIFY",
+    "timestamp": 1,
+    "strand_i": 0,
+    "strand_j": 1,
+    "input_hash": "c0400eba5f0a1a0985c36d9aa06f7a2886496ce023968c178e124115ae172eaa",
+    "output_hash": "8af56067d31869e3642d87a06c1f801301bfb29c1bdfafafc7dee2d0f8081b7f",
+    "result": "PASS"
+  },
+  {
+    "tag": "route-main",
+    "family": "ROUTE",
+    "opcode": "SELECT",
+    "timestamp": 2,
+    "strand_i": 0,
+    "strand_j": 1,
+    "input_hash": "8af56067d31869e3642d87a06c1f801301bfb29c1bdfafafc7dee2d0f8081b7f",
+    "output_hash": "c1e62b507eb6ed18fbdd5bcae357f6a894dab7f3c994f5bc46ee0e8a5500897f",
+    "result": "PASS"
+  },
+  {
+    "tag": "store-state",
+    "family": "MEM",
+    "opcode": "STORE_HOT",
+    "timestamp": 3,
+    "strand_i": 0,
+    "strand_j": 1,
+    "input_hash": "c1e62b507eb6ed18fbdd5bcae357f6a894dab7f3c994f5bc46ee0e8a5500897f",
+    "output_hash": "950ec58b22f347d154779ad78d3dffff1c5bd988101d96968045d73d22ca6ebd",
+    "result": "PASS"
+  },
+  {
+    "tag": "promote-state",
+    "family": "INTEG",
+    "opcode": "PROMOTE",
+    "timestamp": 4,
+    "strand_i": 0,
+    "strand_j": 1,
+    "input_hash": "950ec58b22f347d154779ad78d3dffff1c5bd988101d96968045d73d22ca6ebd",
+    "output_hash": "0be64dff92fd59ce51529093758f9889a62f80448f040b19a94e097c50c2c5df",
+    "result": "PASS"
+  }
+]

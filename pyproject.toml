@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "braid-simulator"
+version = "0.1.0"
+description = "Braided Computational Topology simulator"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "click>=8.1,<9",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8,<9",
+]
+
+[project.scripts]
+braid-simulator = "braid_simulator.simulator:main"
+
+[tool.setuptools]
+packages = ["braid_simulator", "examples", "examples.integrity_demo", "examples.routing_demo", "examples.recovery_demo"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
