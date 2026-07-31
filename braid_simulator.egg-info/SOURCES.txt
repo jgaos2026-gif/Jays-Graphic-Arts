@@ -10,6 +10,7 @@ braid_simulator/crossing.py
 braid_simulator/evidence.py
 braid_simulator/execution.py
 braid_simulator/instructions.py
+braid_simulator/persistence.py
 braid_simulator/protection.py
 braid_simulator/recovery.py
 braid_simulator/simulator.py
