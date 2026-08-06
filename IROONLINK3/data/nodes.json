@@ -1,0 +1,20 @@
+[
+  {
+    "id": "node-001",
+    "name": "Primary Guardian",
+    "host": "127.0.0.1",
+    "port": 4001,
+    "status": "online",
+    "registeredAt": "2026-08-01T00:00:00.000Z",
+    "lastSeen": null
+  },
+  {
+    "id": "node-002",
+    "name": "Secondary Guardian",
+    "host": "127.0.0.1",
+    "port": 4002,
+    "status": "registered",
+    "registeredAt": "2026-08-01T00:00:00.000Z",
+    "lastSeen": null
+  }
+]
