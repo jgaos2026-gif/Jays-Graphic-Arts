@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact &amp; Start a Project — Jays-Graphic-Arts</title>
+  <meta name="description" content="Submit your brief to Jays-Graphic-Arts. Our AI responds with a scoped quote within 60 seconds — 24 hours a day, 7 days a week." />
+  <link rel="stylesheet" href="css/fonts.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav" id="nav">
+    <div class="container nav-inner">
+      <a href="index.html" class="nav-logo">Jays<span>.</span></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="portfolio.html">Portfolio</a></li>
+        <li><a href="contact.html" class="active">Contact</a></li>
+        <li><a href="docs/AI_CAPABILITIES.md">Docs</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="contact.html" class="btn btn-primary">Start a Project</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Page Hero -->
+  <div class="page-hero">
+    <div class="container">
+      <div class="section-label">Contact</div>
+      <h1 class="page-hero-title">Start your project. <span class="accent">Get a quote in 60 seconds.</span></h1>
+      <p class="page-hero-subtitle">Fill in your brief below. Our AI reads it immediately, scopes the work, and returns a binding quote — any time of day.</p>
+    </div>
+  </div>
+
+  <!-- Contact Section -->
+  <section>
+    <div class="container">
+      <div class="contact-grid">
+        <!-- Info -->
+        <div class="contact-info">
+          <div>
+            <div class="section-label">How It Works</div>
+            <h2 style="margin-bottom: 24px;">From brief to <span class="accent">quote in 60 seconds</span></h2>
+            <p style="color: var(--color-muted); line-height: 1.8;">Submit your brief using the form. Our AI processes it instantly — no waiting for a human to read it. You'll receive a scoped project proposal and fixed price quote to your inbox within 60 seconds.</p>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-item-icon">⚡</div>
+            <div>
+              <div class="contact-item-label">Response Time</div>
+              <div class="contact-item-value">Quote delivered within 60 seconds of form submission, 24/7/365.</div>
+            </div>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-item-icon">📧</div>
+            <div>
+              <div class="contact-item-label">Email</div>
+              <div class="contact-item-value">hello@jays-graphic-arts.ai</div>
+            </div>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-item-icon">🔒</div>
+            <div>
+              <div class="contact-item-label">Data &amp; Privacy</div>
+              <div class="contact-item-value">Your brief details are encrypted in transit (TLS 1.3) and at rest (AES-256). We comply with GDPR, CCPA, and PIPEDA. We never share your information with third parties without consent.</div>
+            </div>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-item-icon">💳</div>
+            <div>
+              <div class="contact-item-label">Payment</div>
+              <div class="contact-item-value">We accept Visa, Mastercard, Amex, PayPal, ACH, and BACS bank transfer. All card processing is handled by PCI-DSS-certified processors — we never store card data.</div>
+            </div>
+          </div>
+
+          <div style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 24px;">
+            <div style="font-size: 0.8rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-accent); margin-bottom: 16px;">Reliability Snapshot</div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.875rem;">
+                <span style="color: var(--color-muted);">Uptime (90-day trailing)</span>
+                <span style="color: var(--color-accent); font-weight: 700;">99.96%</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.875rem;">
+                <span style="color: var(--color-muted);">Avg. quote response time</span>
+                <span style="color: var(--color-accent); font-weight: 700;">&lt; 60 sec</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.875rem;">
+                <span style="color: var(--color-muted);">Client satisfaction score</span>
+                <span style="color: var(--color-accent); font-weight: 700;">4.8 / 5.0</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.875rem;">
+                <span style="color: var(--color-muted);">First-pass approval rate</span>
+                <span style="color: var(--color-accent); font-weight: 700;">≥ 60%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <div>
+          <form class="form" id="contactForm" novalidate>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="firstName">First Name *</label>
+                <input class="form-input" type="text" id="firstName" name="firstName" placeholder="Jane" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="lastName">Last Name *</label>
+                <input class="form-input" type="text" id="lastName" name="lastName" placeholder="Smith" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="email">Email Address *</label>
+              <input class="form-input" type="email" id="email" name="email" placeholder="jane@company.com" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="company">Company / Organization</label>
+              <input class="form-input" type="text" id="company" name="company" placeholder="Acme Corp" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="service">Service Required *</label>
+              <select class="form-select" id="service" name="service" required>
+                <option value="" disabled selected>Select a service…</option>
+                <optgroup label="Brand Identity">
+                  <option value="logo">Logo Design</option>
+                  <option value="brand-system">Full Brand System</option>
+                  <option value="rebrand">Rebrand</option>
+                </optgroup>
+                <optgroup label="Print Production">
+                  <option value="collateral">Business Collateral</option>
+                  <option value="marketing-print">Marketing Print (flyers, brochures)</option>
+                  <option value="packaging">Packaging Design</option>
+                </optgroup>
+                <optgroup label="Digital Assets">
+                  <option value="social">Social Media Graphics</option>
+                  <option value="banners">Web Banners &amp; Display Ads</option>
+                  <option value="email-templates">Email Templates</option>
+                </optgroup>
+                <optgroup label="Motion Graphics">
+                  <option value="logo-animation">Logo Animation</option>
+                  <option value="social-motion">Social Motion Content</option>
+                  <option value="infographic-motion">Animated Infographics</option>
+                </optgroup>
+                <optgroup label="Marketing Content">
+                  <option value="blog">Blog &amp; Article Writing</option>
+                  <option value="ad-copy">Ad Copy</option>
+                  <option value="email-campaigns">Email Campaigns</option>
+                </optgroup>
+                <option value="enterprise">Enterprise / Retainer — let's talk</option>
+                <option value="other">Other / Not sure</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="budget">Budget Range *</label>
+                <select class="form-select" id="budget" name="budget" required>
+                  <option value="" disabled selected>Select budget…</option>
+                  <option value="under-300">Under $300</option>
+                  <option value="300-600">$300 – $600</option>
+                  <option value="600-1200">$600 – $1,200</option>
+                  <option value="1200-3000">$1,200 – $3,000</option>
+                  <option value="3000-plus">$3,000+</option>
+                  <option value="custom">Custom / Enterprise</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="timeline">Ideal Timeline *</label>
+                <select class="form-select" id="timeline" name="timeline" required>
+                  <option value="" disabled selected>Select timeline…</option>
+                  <option value="urgent">Urgent — within 24 hours</option>
+                  <option value="3-days">3 business days</option>
+                  <option value="1-week">Within 1 week</option>
+                  <option value="2-weeks">Within 2 weeks</option>
+                  <option value="flexible">Flexible</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="brief">Project Brief *</label>
+              <textarea class="form-textarea" id="brief" name="brief" placeholder="Describe your project: what you need, who your audience is, what feeling or style you're going for, any examples you like, and anything else that will help us scope the work accurately." required style="min-height: 160px;"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="referral">How did you hear about us?</label>
+              <select class="form-select" id="referral" name="referral">
+                <option value="" disabled selected>Select an option…</option>
+                <option value="google">Google Search</option>
+                <option value="social">Social Media</option>
+                <option value="referral">Referral from a client</option>
+                <option value="portfolio">Saw our portfolio</option>
+                <option value="press">Press / Article</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div style="font-size: 0.8rem; color: var(--color-muted); line-height: 1.6;">
+              By submitting this form you agree to our <a href="#" style="color: var(--color-accent);">Terms of Service</a> and <a href="#" style="color: var(--color-accent);">Privacy Policy</a>. Your data is processed under GDPR Article 6(1)(b) (contract performance) and will not be shared with third parties without your consent.
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 16px;">
+              Submit Brief &amp; Get Quote →
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section style="background: var(--color-surface); border-top: 1px solid var(--color-border);">
+    <div class="container">
+      <div class="section-label">FAQ</div>
+      <h2 class="section-title">Common <span class="accent">questions</span></h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 40px;">
+        <div style="background: var(--color-surface-2); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 28px;">
+          <h3 style="font-size: 1rem; margin-bottom: 12px;">How quickly will I receive my quote?</h3>
+          <p style="font-size: 0.875rem; color: var(--color-muted); line-height: 1.7;">Within 60 seconds of submitting your brief, every time. Our AI reads and scopes the work immediately — there's no inbox queue and no waiting for a human to start their day.</p>
+        </div>
+        <div style="background: var(--color-surface-2); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 28px;">
+          <h3 style="font-size: 1rem; margin-bottom: 12px;">What if I'm not happy with the first draft?</h3>
+          <p style="font-size: 0.875rem; color: var(--color-muted); line-height: 1.7;">Every project includes revision rounds (2 for Starter, 4 for Studio). Request changes in plain English — "make the palette warmer", "bolder font" — and the AI revises within hours.</p>
+        </div>
+        <div style="background: var(--color-surface-2); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 28px;">
+          <h3 style="font-size: 1rem; margin-bottom: 12px;">Who owns the final artwork?</h3>
+          <p style="font-size: 0.875rem; color: var(--color-muted); line-height: 1.7;">You do — 100%. Upon final payment, all intellectual property rights transfer to you in full. We retain no licence to reuse your work. This is documented in every service agreement.</p>
+        </div>
+        <div style="background: var(--color-surface-2); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 28px;">
+          <h3 style="font-size: 1rem; margin-bottom: 12px;">Is my brief kept confidential?</h3>
+          <p style="font-size: 0.875rem; color: var(--color-muted); line-height: 1.7;">Yes. Brief details are encrypted in transit and at rest. We offer NDAs for all Studio and Enterprise projects. We never share client information with third parties without consent.</p>
+        </div>
+        <div style="background: var(--color-surface-2); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 28px;">
+          <h3 style="font-size: 1rem; margin-bottom: 12px;">Do you work with clients outside the US?</h3>
+          <p style="font-size: 0.875rem; color: var(--color-muted); line-height: 1.7;">Yes — we work with clients worldwide. Invoices are issued in your local currency with correct tax (VAT, GST, sales tax) applied automatically. Communications are available in 40+ languages.</p>
+        </div>
+        <div style="background: var(--color-surface-2); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 28px;">
+          <h3 style="font-size: 1rem; margin-bottom: 12px;">What file formats will I receive?</h3>
+          <p style="font-size: 0.875rem; color: var(--color-muted); line-height: 1.7;">All source files (AI, EPS, SVG, PSD) plus export formats for every intended use (PDF, PNG, JPEG, TIFF, WebM, MP4). Print files include correct bleed and color profiles. No extra charge for additional formats.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="nav-logo">Jays<span>.</span></a>
+          <p>The world's first fully autonomous AI-run graphic arts studio. Enterprise-grade design at startup speed.</p>
+        </div>
+        <div>
+          <div class="footer-col-title">Services</div>
+          <ul class="footer-links">
+            <li><a href="services.html#brand">Brand Identity</a></li>
+            <li><a href="services.html#print">Print Production</a></li>
+            <li><a href="services.html#digital">Digital Assets</a></li>
+            <li><a href="services.html#motion">Motion Graphics</a></li>
+            <li><a href="services.html#content">Marketing Content</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Company</div>
+          <ul class="footer-links">
+            <li><a href="portfolio.html">Portfolio</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="docs/AI_CAPABILITIES.md">AI Capabilities</a></li>
+            <li><a href="docs/AI_RELIABILITY.md">AI Reliability</a></li>
+            <li><a href="docs/COMPLIANCE.md">Compliance</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Legal</div>
+          <ul class="footer-links">
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="docs/COMPLIANCE.md">GDPR / CCPA</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Jays-Graphic-Arts. All rights reserved.</p>
+        <div class="footer-badges">
+          <span class="footer-badge">🔒 GDPR Compliant</span>
+          <span class="footer-badge">✅ PCI DSS SAQ-A</span>
+          <span class="footer-badge">♿ WCAG 2.1 AA</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast">✓ Brief submitted! Check your email for your quote.</div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

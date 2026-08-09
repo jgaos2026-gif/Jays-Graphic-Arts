@@ -1,10 +1,39 @@
 # Braided Computational Topology
 
-> **A research program investigating executable braid topologies as computational structures.**
+> **The world's first fully Autonomous AI-run graphic arts company -- complete business cycles, zero compromise on compliance.**
 
-**Author:** John E. Arenz — JGA Enterprises, Mendota, Illinois  
-**Version:** 1.0  
-**Status:** Research Prototype  
+Jays-Graphic-Arts operates every function of a professional graphic design studio through a custom Autonomous AI platform: from lead capture and client communication, through creative production and quality assurance, all the way to invoicing, payment reconciliation, and regulatory reporting -- without human bottlenecks.
+
+---
+
+## Website
+
+The public-facing website lives at the root of this repository and is composed of four pages:
+
+| Page | File | Description |
+|---|---|---|
+| Home | [`index.html`](index.html) | Hero, services overview, how-it-works, portfolio preview, reliability metrics, testimonials, and CTA |
+| Services | [`services.html`](services.html) | Full service catalogue and transparent pricing tiers |
+| Portfolio | [`portfolio.html`](portfolio.html) | Filterable project grid and a featured case study |
+| Contact | [`contact.html`](contact.html) | Project brief submission form and FAQ |
+
+### Assets
+
+| Path | Contents |
+|---|---|
+| [`css/style.css`](css/style.css) | Full stylesheet (reset, layout, components, responsive) |
+| [`css/fonts.css`](css/fonts.css) | Google Fonts import (Montserrat + Inter) |
+| [`js/main.js`](js/main.js) | Navigation scroll behaviour, mobile menu, form handling, scroll animations |
+
+### Run locally
+
+Open `index.html` directly in any modern browser, or serve the repository root with a static server:
+
+```bash
+# Python 3
+python -m http.server 8080
+# Then open http://localhost:8080
+```
 
 ---
 
@@ -255,7 +284,7 @@ This is **not**:
 
 ---
 
-## License
+## About
 
 This repository is licensed under the [MIT License](LICENSE).
 
