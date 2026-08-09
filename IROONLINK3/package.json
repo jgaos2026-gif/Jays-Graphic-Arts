@@ -1,0 +1,19 @@
+{
+  "name": "iroonlink3",
+  "version": "1.0.0",
+  "description": "IROONLINK3 — Control Room and Protection Node dashboard for the BCT research kernel",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node --test tests/server.test.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "author": "John E. Arenz — JGA Enterprises",
+  "license": "MIT"
+}

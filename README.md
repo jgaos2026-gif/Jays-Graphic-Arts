@@ -1,4 +1,4 @@
-# Jays-Graphic-Arts
+# Braided Computational Topology
 
 > **The world's first fully Autonomous AI-run graphic arts company -- complete business cycles, zero compromise on compliance.**
 
@@ -37,17 +37,259 @@ python -m http.server 8080
 
 ---
 
-## Documentation
+## Overview
+
+Modern computers are largely built around trees, graphs, queues, stacks, and linear memory models.
+
+This research investigates an additional architectural family: **Braided Computational Topology (BCT)**.
+
+Rather than representing computation solely as state transitions, BCT explores whether executable braid topologies can preserve:
+
+- Execution history
+- Authority
+- Verification
+- Provenance
+- Recovery pathways
+- Deterministic replay
+
+…without discarding structural information.
+
+---
+
+## Philosophy
+
+> *Current computers ask: **Where did the data end up?***
+>
+> *Braided computing asks: **How did the data get there?***
+
+Those are fundamentally different questions.
+
+---
+
+## Repository Structure
+
+```
+braided-computational-topology/
+│
+├── README.md
+├── LICENSE
+├── CITATION.cff
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
+├── BRAIDED_TOPOLOGY_MANIFESTO.md
+│
+├── docs/
+│   ├── WHITE_PAPER.md
+│   ├── THESIS.md
+│   ├── GLOSSARY.md
+│   ├── FAQ.md
+│   ├── ROADMAP.md
+│   ├── TERMINOLOGY.md
+│   ├── HISTORY.md
+│   └── REFERENCES.md
+│
+├── mathematics/
+│   ├── BRAID_GROUP_FOUNDATION.md
+│   ├── EXECUTABLE_BRAIDS.md
+│   ├── BRAID_OPERATIONS.md
+│   ├── COMPUTATIONAL_TOPOLOGY.md
+│   └── INVARIANTS.md
+│
+├── architecture/
+│   ├── ISA.md
+│   ├── MEMORY.md
+│   ├── AUTHORITY.md
+│   ├── VERIFICATION.md
+│   ├── RECOVERY.md
+│   ├── ROUTING.md
+│   ├── EXECUTION.md
+│   └── NODE_TYPES.md
+│
+├── research/
+│   ├── OPEN_PROBLEMS.md
+│   ├── FUTURE_WORK.md
+│   ├── HYPOTHESES.md
+│   ├── AI_APPLICATIONS.md
+│   └── BENCHMARK_PLAN.md
+│
+├── implementation/
+│   ├── prototype/
+│   ├── simulator/
+│   ├── examples/
+│   └── benchmarks/
+│
+├── proofs/
+├── tests/
+└── papers/
+```
+
+---
+
+## Core Laws
+
+These ten laws govern the BCT architecture and are inherited by all subsystems.
+
+| # | Law |
+|---|---|
+| 1 | No active state becomes trusted without verification. |
+| 2 | Evidence is append-only. |
+| 3 | Trusted state is reproducible. |
+| 4 | Authority cannot be bypassed. |
+| 5 | Recovery preserves evidence. |
+| 6 | Every trusted state has deterministic recovery. |
+| 7 | History is never discarded. |
+| 8 | Verification precedes promotion. |
+| 9 | Every module has explicit authority. |
+| 10 | Governing laws remain immutable. |
+
+---
+
+## Major Concepts
+
+### 1. Braided Topology
+
+A computational topology composed of interacting strands that preserve execution relationships through structured crossings.
+
+### 2. Executable Braids
+
+Braids whose crossings perform computational work rather than serving as passive representations.
+
+### 3. Instruction Families
+
+| Family | Purpose | Status |
+|---|---|---|
+| Integrity | Verifies state transitions | Defined |
+| Routing | Moves information through alternate verified paths | Defined |
+| Recovery | Repairs damaged execution | Defined |
+| Role Exchange | Transfers authority between strands | Defined |
+| Authority | Determines permissions | Defined |
+| Memory | Coordinates hot, warm, and cold state | Defined |
+| Learning | Adaptive braid reconfiguration | Future research |
+| Compression | Braid topology compression | Future research |
+
+---
+
+## Computational Layers
+
+```
+Input
+  ↓
+Authority
+  ↓
+Verification
+  ↓
+Execution
+  ↓
+Recovery
+  ↓
+Certification
+  ↓
+Persistence
+  ↓
+Evidence
+```
+
+---
+
+## What Is Established vs. Original
+
+| Established Mathematics (prior work) | Original Research (this project) |
+|---|---|
+| Braid groups (Artin, 1925) | Executable braid instruction families |
+| Algebraic topology | Braided computational architecture |
+| Graph theory | Computational braid taxonomy |
+| Knot theory | Authority braids |
+| Category theory | Verification braids |
+| | Recovery braids |
+| | Memory braid architecture |
+| | Braid ISA |
+| | Executable crossings |
+| | Computational provenance through braid structures |
+
+---
+
+## Research Questions
+
+1. Can braid topology preserve execution history better than conventional state machines?
+2. Can executable braid operations improve recovery fidelity?
+3. Can braid architectures improve verification completeness?
+4. Can braid instruction families become a practical ISA?
+5. Can AI reasoning benefit from specialized braid families?
+
+---
+
+## Current Status
+
+**Classification:** Research Prototype  
+**Maturity:** Executable architecture prototype  
+**Organization:** JGA Enterprises  
+**Researcher:** John E. Arenz, Mendota, Illinois
+
+This is **not**:
+- An operating system replacement
+- A production runtime
+- A commercial processor design
+
+**Current focus:** formal models, benchmarks, independent validation, executable simulator.
+
+---
+
+## Documentation Index
 
 | Document | Description |
 |---|---|
-| [AI Reliability](docs/AI_RELIABILITY.md) | How we engineered the AI to be trustworthy, resilient, and auditable |
-| [AI Capabilities](docs/AI_CAPABILITIES.md) | Everything the AI can do across the full business |
-| [Compliance Framework](docs/COMPLIANCE.md) | Legal, data-privacy, copyright, and financial compliance |
-| [Business Cycles](docs/BUSINESS_CYCLES.md) | End-to-end automated business workflow overview |
+| [Manifesto](BRAIDED_TOPOLOGY_MANIFESTO.md) | Entry point — why BCT, what is established, what is hypothetical |
+| [White Paper](docs/WHITE_PAPER.md) | Full abstract and motivation |
+| [Thesis](docs/THESIS.md) | Extended treatment of the research program |
+| [Glossary](docs/GLOSSARY.md) | Definitions of all BCT terms |
+| [Terminology](docs/TERMINOLOGY.md) | Precise language guide |
+| [Roadmap](docs/ROADMAP.md) | Development milestones |
+| [FAQ](docs/FAQ.md) | Common questions answered |
+| [History](docs/HISTORY.md) | Development history of this research |
+| [References](docs/REFERENCES.md) | Prior art and mathematical foundations |
+| [Braid Group Foundation](mathematics/BRAID_GROUP_FOUNDATION.md) | Established mathematics |
+| [Executable Braids](mathematics/EXECUTABLE_BRAIDS.md) | Original contribution |
+| [Braid Operations](mathematics/BRAID_OPERATIONS.md) | Operational definitions |
+| [Computational Topology](mathematics/COMPUTATIONAL_TOPOLOGY.md) | Topology framework |
+| [Invariants](mathematics/INVARIANTS.md) | Computational invariant definitions |
+| [ISA](architecture/ISA.md) | Braid instruction set architecture |
+| [Memory](architecture/MEMORY.md) | Memory braid architecture |
+| [Authority](architecture/AUTHORITY.md) | Authority braid model |
+| [Verification](architecture/VERIFICATION.md) | Verification architecture |
+| [Recovery](architecture/RECOVERY.md) | Recovery braid model |
+| [Routing](architecture/ROUTING.md) | Routing braid model |
+| [Execution](architecture/EXECUTION.md) | Execution model |
+| [Node Types](architecture/NODE_TYPES.md) | Braid node taxonomy |
+| [Open Problems](research/OPEN_PROBLEMS.md) | Unsolved research questions |
+| [Future Work](research/FUTURE_WORK.md) | Planned research directions |
+| [Hypotheses](research/HYPOTHESES.md) | Testable hypotheses |
+| [AI Applications](research/AI_APPLICATIONS.md) | AI research directions |
+| [Benchmark Plan](research/BENCHMARK_PLAN.md) | Evaluation methodology |
+
+---
+
+## Citation
+
+```bibtex
+@misc{arenz2026bct,
+  author       = {Arenz, John E.},
+  title        = {Braided Computational Topology: A Research Framework for Executable Braid Architectures},
+  year         = {2026},
+  version      = {1.0},
+  organization = {JGA Enterprises},
+  address      = {Mendota, Illinois},
+  url          = {https://github.com/jgaos2026-gif/braided-computational-topology}
+}
+```
 
 ---
 
 ## About
 
-Jays-Graphic-Arts was founded on the principle that a small studio can deliver enterprise-grade design services at scale by pairing human creative direction with autonomous AI execution. Every policy, safeguard, and capability listed in this documentation reflects the real system in production.
+This repository is licensed under the [MIT License](LICENSE).
+
+---
+
+## Motto
+
+> *Computing remembers where it arrived. Braided Computing remembers how it arrived.*

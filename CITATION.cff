@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use or reference this research, please cite it as below."
+title: "Braided Computational Topology: A Research Framework for Executable Braid Architectures"
+authors:
+  - family-names: Arenz
+    given-names: John E.
+    affiliation: "JGA Enterprises"
+    city: Mendota
+    region: Illinois
+    country: US
+version: "1.0"
+date-released: 2026-07-01
+license: MIT
+repository-code: "https://github.com/jgaos2026-gif/braided-computational-topology"
+keywords:
+  - braid groups
+  - computational topology
+  - executable braids
+  - verification architecture
+  - authority
+  - recovery
+  - provenance
+  - braid ISA
+  - distributed computation
+  - AI reasoning
+abstract: >
+  Braided Computational Topology (BCT) investigates whether executable
+  braid topologies can serve as computational structures for verification,
+  authority, routing, recovery, memory, provenance, distributed execution,
+  and AI reasoning. This repository contains the formal definitions,
+  architecture specifications, research questions, and prototype
+  implementations of the BCT research program. Research and prototyping
+  conducted by John E. Arenz, JGA Enterprises, Mendota, Illinois.

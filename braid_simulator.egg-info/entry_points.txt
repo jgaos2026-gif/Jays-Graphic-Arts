@@ -1,0 +1,2 @@
+[console_scripts]
+braid-simulator = braid_simulator.simulator:main

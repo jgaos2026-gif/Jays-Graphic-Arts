@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IROONLINK3 — Control Room</title>
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar__brand">
+      <span class="topbar__logo">⬡</span>
+      <span class="topbar__title">IROONLINK3</span>
+      <span class="topbar__subtitle">Control Room</span>
+    </div>
+    <div class="topbar__status">
+      <span id="server-status" class="badge badge--unknown">Connecting…</span>
+      <span id="server-time" class="topbar__time"></span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel panel--nodes">
+      <div class="panel__header">
+        <h2 class="panel__title">Protection Nodes</h2>
+        <button class="btn btn--primary" id="btn-refresh">↻ Refresh</button>
+      </div>
+
+      <table class="node-table" id="node-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Host</th>
+            <th>Port</th>
+            <th>Status</th>
+            <th>Last Seen</th>
+          </tr>
+        </thead>
+        <tbody id="node-tbody">
+          <tr><td colspan="6" class="empty">Loading nodes…</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel panel--register">
+      <div class="panel__header">
+        <h2 class="panel__title">Register Node</h2>
+      </div>
+      <form id="register-form" class="register-form">
+        <label class="form-field">
+          <span>Node ID</span>
+          <input type="text" name="id" placeholder="node-001" required />
+        </label>
+        <label class="form-field">
+          <span>Name</span>
+          <input type="text" name="name" placeholder="Primary Guardian" required />
+        </label>
+        <label class="form-field">
+          <span>Host</span>
+          <input type="text" name="host" placeholder="192.168.1.10" required />
+        </label>
+        <label class="form-field">
+          <span>Port</span>
+          <input type="number" name="port" placeholder="4000" min="1" max="65535" />
+        </label>
+        <button type="submit" class="btn btn--primary">Register</button>
+        <p id="register-msg" class="form-msg"></p>
+      </form>
+    </section>
+
+    <section class="panel panel--log">
+      <div class="panel__header">
+        <h2 class="panel__title">Event Log</h2>
+        <button class="btn btn--ghost" id="btn-clear-log">Clear</button>
+      </div>
+      <ul id="event-log" class="event-log"></ul>
+    </section>
+  </main>
+
+  <script>
+    const $ = id => document.getElementById(id);
+
+    // ── Logging ──────────────────────────────────────────────────────────────
+    function log(msg, level = 'info') {
+      const li = document.createElement('li');
+      li.className = `log-entry log-entry--${level}`;
+      const ts = new Date().toLocaleTimeString();
+      li.textContent = `[${ts}] ${msg}`;
+      $('event-log').prepend(li);
+    }
+
+    $('btn-clear-log').addEventListener('click', () => { $('event-log').innerHTML = ''; });
+
+    // ── Server status ─────────────────────────────────────────────────────────
+    async function pollStatus() {
+      try {
+        const r = await fetch('/api/status');
+        const d = await r.json();
+        $('server-status').textContent = d.status.toUpperCase();
+        $('server-status').className = 'badge badge--online';
+        $('server-time').textContent = new Date(d.timestamp).toLocaleTimeString();
+      } catch {
+        $('server-status').textContent = 'OFFLINE';
+        $('server-status').className = 'badge badge--offline';
+      }
+    }
+    setInterval(pollStatus, 5000);
+    pollStatus();
+
+    // ── Node table ────────────────────────────────────────────────────────────
+    function statusBadge(status) {
+      const cls = { online: 'badge--online', registered: 'badge--idle', offline: 'badge--offline' };
+      return `<span class="badge ${cls[status] || 'badge--unknown'}">${status}</span>`;
+    }
+
+    function timeSince(iso) {
+      if (!iso) return '—';
+      const secs = Math.floor((Date.now() - new Date(iso)) / 1000);
+      if (secs < 60) return `${secs}s ago`;
+      if (secs < 3600) return `${Math.floor(secs / 60)}m ago`;
+      return new Date(iso).toLocaleTimeString();
+    }
+
+    async function loadNodes() {
+      try {
+        const r = await fetch('/api/nodes');
+        const nodes = await r.json();
+        const tbody = $('node-tbody');
+        if (!nodes.length) {
+          tbody.innerHTML = '<tr><td colspan="6" class="empty">No nodes registered.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = nodes.map(n => `
+          <tr>
+            <td><code>${n.id}</code></td>
+            <td>${n.name}</td>
+            <td>${n.host}</td>
+            <td>${n.port}</td>
+            <td>${statusBadge(n.status)}</td>
+            <td>${timeSince(n.lastSeen)}</td>
+          </tr>`).join('');
+      } catch (err) {
+        log(`Failed to load nodes: ${err.message}`, 'error');
+      }
+    }
+
+    $('btn-refresh').addEventListener('click', () => { loadNodes(); log('Refreshed node list.'); });
+    setInterval(loadNodes, 10000);
+    loadNodes();
+
+    // ── Register form ─────────────────────────────────────────────────────────
+    $('register-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const body = {
+        id: fd.get('id').trim(),
+        name: fd.get('name').trim(),
+        host: fd.get('host').trim(),
+        port: parseInt(fd.get('port') || '4000', 10),
+      };
+      try {
+        const r = await fetch('/api/nodes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || r.statusText);
+        $('register-msg').textContent = `✓ Node "${body.name}" registered.`;
+        $('register-msg').className = 'form-msg form-msg--ok';
+        e.target.reset();
+        log(`Registered node: ${body.id} (${body.name})`, 'success');
+        loadNodes();
+      } catch (err) {
+        $('register-msg').textContent = `✗ ${err.message}`;
+        $('register-msg').className = 'form-msg form-msg--error';
+        log(`Registration failed: ${err.message}`, 'error');
+      }
+    });
+  </script>
+</body>
+</html>
