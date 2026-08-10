@@ -45,7 +45,7 @@
   }
 
   function escapeMailtoValue(value) {
-    return encodeURIComponent(value).replace(/%20/g, '+');
+    return encodeURIComponent(value);
   }
 
   function buildBriefSummary(data) {
