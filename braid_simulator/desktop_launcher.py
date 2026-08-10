@@ -34,7 +34,7 @@ def stop_process(process: subprocess.Popen[bytes] | None) -> None:
         process.wait(timeout=5)
     except subprocess.TimeoutExpired:
         process.kill()
-        process.wait(timeout=5)
+        process.wait()
 
 
 def wait_for_port(host: str, port: int, timeout: float = 15.0) -> None:

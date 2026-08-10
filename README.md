@@ -327,7 +327,7 @@ This is **not**:
 
 ---
 
-## About
+## License
 
 This repository is licensed under the [MIT License](LICENSE).
 
