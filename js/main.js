@@ -116,11 +116,17 @@
           : 'If your email client trims long messages, please keep a copy of this brief before sending.',
       ].join('\n');
 
-      window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const mailtoHref = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const mailtoLink = document.createElement('a');
+      mailtoLink.href = mailtoHref;
+      mailtoLink.style.display = 'none';
+      document.body.appendChild(mailtoLink);
+      mailtoLink.click();
+      mailtoLink.remove();
 
       showToast(copied
         ? '✓ Email draft opened, your full brief was copied, and your form entries were kept in place.'
-        : '✓ Email draft opened and your form entries were kept in place.');
+        : '✓ Email draft opened. Your form entries were kept in place in case you need to resend.');
     });
   }
 
