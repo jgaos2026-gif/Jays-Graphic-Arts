@@ -104,18 +104,39 @@
       const summary = buildBriefSummary(data);
       const copied = await copyText(summary);
       const subject = `Project brief: ${data.service || 'new inquiry'} — ${data.firstName || ''} ${data.lastName || ''}`.trim();
-      const body = [
+      const backupLine = copied
+        ? 'The full brief was also copied to my clipboard as a backup.'
+        : 'If your email client trims long messages, please keep a copy of this brief before sending.';
+      const fullBody = [
         'Hello Jays-Graphic-Arts,',
         '',
         'I would like to start a project. My brief is below:',
         '',
         summary,
         '',
-        copied
-          ? 'The full brief was also copied to my clipboard as a backup.'
-          : 'If your email client trims long messages, please keep a copy of this brief before sending.',
+        backupLine,
       ].join('\n');
-
+      const body = fullBody.length > 1600
+        ? [
+            'Hello Jays-Graphic-Arts,',
+            '',
+            'I would like to start a project. My full brief is too long to safely include in a mailto draft.',
+            '',
+            `Name: ${data.firstName || ''} ${data.lastName || ''}`.trim(),
+            `Email: ${data.email || ''}`,
+            `Company: ${data.company || 'N/A'}`,
+            `Service: ${data.service || ''}`,
+            `Budget: ${data.budget || ''}`,
+            `Timeline: ${data.timeline || ''}`,
+            '',
+            'Brief preview:',
+            (data.brief || '').slice(0, 500),
+            '',
+            copied
+              ? 'The full brief was copied to my clipboard. Please paste it into the email before sending.'
+              : 'The full brief is still in the form on the page. Please copy it into the email before sending.',
+          ].join('\n')
+        : fullBody;
       const mailtoHref = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       const mailtoLink = document.createElement('a');
       mailtoLink.href = mailtoHref;
