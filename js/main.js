@@ -6,6 +6,8 @@
   'use strict';
 
   const CONTACT_EMAIL = 'hello@jays-graphic-arts.ai';
+  const MAILTO_BODY_LIMIT = 1600;
+  const BRIEF_PREVIEW_LIMIT = 500;
 
   /* ---- Navigation: scroll behaviour ----------------------- */
   const nav = document.getElementById('nav');
@@ -102,6 +104,9 @@
       // Serialize form data
       const data = Object.fromEntries(new FormData(contactForm));
       const summary = buildBriefSummary(data);
+      const briefPreview = (data.brief || '').length > BRIEF_PREVIEW_LIMIT
+        ? `${(data.brief || '').slice(0, BRIEF_PREVIEW_LIMIT)}…`
+        : (data.brief || '');
       const copied = await copyText(summary);
       const subject = `Project brief: ${data.service || 'new inquiry'} — ${data.firstName || ''} ${data.lastName || ''}`.trim();
       const backupLine = copied
@@ -116,7 +121,7 @@
         '',
         backupLine,
       ].join('\n');
-      const body = fullBody.length > 1600
+      const body = fullBody.length > MAILTO_BODY_LIMIT
         ? [
             'Hello Jays-Graphic-Arts,',
             '',
@@ -130,7 +135,7 @@
             `Timeline: ${data.timeline || ''}`,
             '',
             'Brief preview:',
-            (data.brief || '').slice(0, 500),
+            briefPreview,
             '',
             copied
               ? 'The full brief was copied to my clipboard. Please paste it into the email before sending.'
