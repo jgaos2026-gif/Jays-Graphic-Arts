@@ -44,7 +44,7 @@
     setTimeout(() => toast.classList.remove('show'), 4000);
   }
 
-  function escapeMailtoValue(value) {
+  function encodeMailtoComponent(value) {
     return encodeURIComponent(value);
   }
 
@@ -120,12 +120,11 @@
           : 'If your email client trims long messages, please keep a copy of this brief before sending.',
       ].join('\n');
 
-      window.location.href = `mailto:${CONTACT_EMAIL}?subject=${escapeMailtoValue(subject)}&body=${escapeMailtoValue(body)}`;
+      window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeMailtoComponent(subject)}&body=${encodeMailtoComponent(body)}`;
 
-      contactForm.reset();
       showToast(copied
-        ? '✓ Email draft opened and your full brief was copied.'
-        : '✓ Email draft opened for your brief.');
+        ? '✓ Email draft opened, your full brief was copied, and your form entries were kept in place.'
+        : '✓ Email draft opened and your form entries were kept in place.');
     });
   }
 
