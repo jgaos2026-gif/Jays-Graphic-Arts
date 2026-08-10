@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import shutil
 import socket
 import subprocess
 import sys
@@ -13,6 +14,8 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 IROONLINK3_ROOT = REPO_ROOT / "IROONLINK3"
+IROONLINK3_ENTRYPOINT = IROONLINK3_ROOT / "server.js"
+IROONLINK3_NODE_MODULES = IROONLINK3_ROOT / "node_modules"
 DEFAULT_SITE_PORT = 8080
 DEFAULT_CONTROL_ROOM_PORT = 3000
 
@@ -41,6 +44,19 @@ def wait_for_port(host: str, port: int, timeout: float = 15.0) -> None:
             return
         time.sleep(0.1)
     raise TimeoutError(f"Timed out waiting for {host}:{port}")
+
+
+def validate_desktop_runtime() -> None:
+    if not IROONLINK3_ROOT.exists():
+        raise RuntimeError(f"IROONLINK3 directory not found at {IROONLINK3_ROOT}")
+    if not IROONLINK3_ENTRYPOINT.exists():
+        raise RuntimeError(f"IROONLINK3 entrypoint not found at {IROONLINK3_ENTRYPOINT}")
+    if shutil.which("node") is None:
+        raise RuntimeError("Node.js 18+ is required to run the IROONLINK3 control room.")
+    if not IROONLINK3_NODE_MODULES.exists():
+        raise RuntimeError(
+            f"IROONLINK3 dependencies are missing. Run `npm ci` in {IROONLINK3_ROOT} and try again."
+        )
 
 
 @dataclass
@@ -73,6 +89,13 @@ def make_service_commands(site_port: int = DEFAULT_SITE_PORT, control_room_port:
         port=control_room_port,
     )
     return site, control_room
+
+
+def ensure_port_available(service: ServiceCommand, process: subprocess.Popen[bytes] | None) -> None:
+    if process is not None and process.poll() is None:
+        return
+    if is_port_open(service.host, service.port):
+        raise RuntimeError(f"{service.label} port {service.port} is already in use.")
 
 
 class DesktopLauncherApp:
@@ -158,6 +181,15 @@ class DesktopLauncherApp:
             start_new_session=os.name != "nt",
         )
 
+    def _spawn_checked(self, service: ServiceCommand, env: dict[str, str] | None = None) -> subprocess.Popen[bytes]:
+        process = self._spawn(service, env=env)
+        time.sleep(0.2)
+        if process.poll() is not None:
+            raise RuntimeError(
+                f"{service.label} failed to start. Check whether port {service.port} is available and dependencies are installed."
+            )
+        return process
+
     def start_all(self) -> None:
         try:
             self._refresh_labels()
@@ -168,23 +200,26 @@ class DesktopLauncherApp:
 
     def _start_all(self) -> None:
         try:
+            validate_desktop_runtime()
             site, control_room = self._commands()
             self._set_status("Starting services...")
 
             with self.process_lock:
                 site_process = self.site_process
+            ensure_port_available(site, site_process)
             if site_process is None or site_process.poll() is not None:
-                new_site_process = self._spawn(site)
+                new_site_process = self._spawn_checked(site)
                 with self.process_lock:
                     self.site_process = new_site_process
                 wait_for_port(site.host, site.port)
 
             with self.process_lock:
                 control_room_process = self.control_room_process
+            ensure_port_available(control_room, control_room_process)
             if control_room_process is None or control_room_process.poll() is not None:
                 env = os.environ.copy()
                 env["PORT"] = str(control_room.port)
-                new_control_room_process = self._spawn(control_room, env=env)
+                new_control_room_process = self._spawn_checked(control_room, env=env)
                 with self.process_lock:
                     self.control_room_process = new_control_room_process
                 wait_for_port(control_room.host, control_room.port)
@@ -235,9 +270,6 @@ def main() -> None:
         import tkinter as tk
     except ImportError as exc:
         raise SystemExit(f"tkinter is required for the desktop launcher: {exc}") from exc
-
-    if not IROONLINK3_ROOT.exists():
-        raise SystemExit(f"IROONLINK3 directory not found at {IROONLINK3_ROOT}")
 
     app = DesktopLauncherApp(tk)
     app.run()
