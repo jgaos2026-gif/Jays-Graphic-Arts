@@ -7,11 +7,30 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, 'data', 'nodes.json');
+const MAX_NODE_FIELD_LENGTH = 120;
+const NODE_ID_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$/;
 
-app.use(express.json());
+app.disable('x-powered-by');
+app.use(express.json({ limit: '16kb' }));
 app.use(express.static(__dirname));
+app.use('/api', (_req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  next();
+});
+
+app.use((err, _req, res, next) => {
+  if (err instanceof SyntaxError && 'body' in err) {
+    return res.status(400).json({ error: 'Malformed JSON body' });
+  }
+  return next(err);
+});
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
+
+function ensureDataDir() {
+  fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
+}
 
 function loadNodes() {
   try {
@@ -22,7 +41,43 @@ function loadNodes() {
 }
 
 function saveNodes(nodes) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(nodes, null, 2));
+  ensureDataDir();
+  const tempFile = `${DATA_FILE}.tmp`;
+  fs.writeFileSync(tempFile, JSON.stringify(nodes, null, 2));
+  fs.renameSync(tempFile, DATA_FILE);
+}
+
+function sanitizeNodeString(value) {
+  if (typeof value !== 'string') return '';
+  return value.trim().slice(0, MAX_NODE_FIELD_LENGTH);
+}
+
+function normalizePort(value) {
+  if (value === undefined || value === null || value === '') return 4000;
+  const port = Number.parseInt(value, 10);
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error('port must be an integer between 1 and 65535');
+  }
+  return port;
+}
+
+function parseNodePayload(body) {
+  const id = sanitizeNodeString(body && body.id);
+  const name = sanitizeNodeString(body && body.name);
+  const host = sanitizeNodeString(body && body.host);
+  const port = normalizePort(body && body.port);
+
+  if (!id || !name || !host) {
+    throw new Error('id, name, and host are required');
+  }
+  if (!NODE_ID_PATTERN.test(id)) {
+    throw new Error('id must start with a letter or number and use only letters, numbers, dot, underscore, or dash');
+  }
+  if (/\s/.test(host)) {
+    throw new Error('host must not contain spaces');
+  }
+
+  return { id, name, host, port };
 }
 
 // ── API routes ────────────────────────────────────────────────────────────────
@@ -46,19 +101,18 @@ app.get('/api/nodes/:id', (req, res) => {
 
 // POST /api/nodes  — register a new protection node
 app.post('/api/nodes', (req, res) => {
-  const { id, name, host, port } = req.body;
-  if (!id || !name || !host) {
-    return res.status(400).json({ error: 'id, name, and host are required' });
+  let payload;
+  try {
+    payload = parseNodePayload(req.body);
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
   }
   const nodes = loadNodes();
-  if (nodes.find(n => n.id === id)) {
+  if (nodes.find(n => n.id === payload.id)) {
     return res.status(409).json({ error: 'Node id already registered' });
   }
   const node = {
-    id,
-    name,
-    host,
-    port: port || 4000,
+    ...payload,
     status: 'registered',
     registeredAt: new Date().toISOString(),
     lastSeen: null,
@@ -95,8 +149,15 @@ app.get('*', (_req, res) => {
 });
 
 // ── Start ─────────────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log(`IROONLINK3 Control Room listening on http://localhost:${PORT}`);
-});
+function startServer(port = PORT) {
+  return app.listen(port, () => {
+    console.log(`IROONLINK3 Control Room listening on http://localhost:${port}`);
+  });
+}
+
+if (require.main === module) {
+  startServer();
+}
 
 module.exports = app;
+module.exports.startServer = startServer;

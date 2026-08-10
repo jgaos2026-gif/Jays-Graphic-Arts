@@ -32,3 +32,27 @@ jobs:
 
       - name: Run tests
         run: python -m pytest -v
+
+  test-node:
+    name: Test (Node 18)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: npm
+          cache-dependency-path: IROONLINK3/package-lock.json
+
+      - name: Install IROONLINK3 dependencies
+        working-directory: IROONLINK3
+        run: npm ci
+
+      - name: Run IROONLINK3 tests
+        working-directory: IROONLINK3
+        run: npm test

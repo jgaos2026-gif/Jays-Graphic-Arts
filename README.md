@@ -44,6 +44,31 @@ python -m http.server 8080
 # Then open http://localhost:8080
 ```
 
+### Integrated local launch
+
+The repository also includes the IROONLINK3 control-room backend in [`IROONLINK3/`](IROONLINK3) and a small desktop launcher that starts both the public site and the control room together.
+
+```bash
+# Install Python dev dependencies once
+python -m pip install -e '.[dev]'
+
+# Start the desktop launcher
+jga-desktop
+```
+
+The launcher starts:
+
+- the public website from the repository root on port `8080`
+- the IROONLINK3 control room on port `3000`
+
+You can still run the control room on its own:
+
+```bash
+cd IROONLINK3
+npm test
+npm start
+```
+
 ---
 
 ## Overview
