@@ -52,6 +52,9 @@ The repository also includes the IROONLINK3 control-room backend in [`IROONLINK3
 # Install Python dev dependencies once
 python -m pip install -e '.[dev]'
 
+# Install or refresh the IROONLINK3 control-room dependencies when needed
+cd IROONLINK3 && npm ci && cd ..
+
 # Start the desktop launcher
 jga-desktop
 ```
@@ -60,6 +63,12 @@ The launcher starts:
 
 - the public website from the repository root on port `8080`
 - the IROONLINK3 control room on port `3000`
+
+Desktop launcher prerequisites:
+
+- Python 3.10+ with `tkinter` available
+- Node.js 18+
+- free local ports for the website and control room
 
 You can still run the control room on its own:
 
