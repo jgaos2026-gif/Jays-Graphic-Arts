@@ -38,7 +38,15 @@ def test_make_service_commands_allow_custom_ports() -> None:
     assert control_room.url == "http://127.0.0.1:3100"
 
 
-def test_validate_desktop_runtime_accepts_current_repo(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_validate_desktop_runtime_accepts_current_repo(tmp_path, monkeypatch: pytest.MonkeyPatch) -> None:
+    root = tmp_path / "iroonlink3"
+    entrypoint = root / "server.js"
+    node_modules = root / "node_modules"
+    node_modules.mkdir(parents=True, exist_ok=True)
+    entrypoint.write_text("console.log('ok');", encoding="utf-8")
+    monkeypatch.setattr("braid_simulator.desktop_launcher.IROONLINK3_ROOT", root)
+    monkeypatch.setattr("braid_simulator.desktop_launcher.IROONLINK3_ENTRYPOINT", entrypoint)
+    monkeypatch.setattr("braid_simulator.desktop_launcher.IROONLINK3_NODE_MODULES", node_modules)
     monkeypatch.setattr("braid_simulator.desktop_launcher.shutil.which", lambda name: "/usr/bin/node" if name == "node" else None)
 
     validate_desktop_runtime()
