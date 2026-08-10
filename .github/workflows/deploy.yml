@@ -5,10 +5,9 @@ on:
     branches: ["main"]
     paths:
       - ".github/workflows/deploy.yml"
-      - "index.html"
-      - "services.html"
-      - "portfolio.html"
-      - "contact.html"
+      - "*.html"
+      - "robots.txt"
+      - "sitemap.xml"
       - "css/**"
       - "js/**"
       - "docs/**"
@@ -38,6 +37,8 @@ jobs:
         run: |
           mkdir -p _site
           cp ./*.html _site/
+          cp robots.txt _site/
+          cp sitemap.xml _site/
           cp -R css _site/
           cp -R js _site/
           cp -R docs _site/

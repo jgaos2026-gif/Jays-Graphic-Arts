@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://jgaos2026-gif.github.io/Jays-Graphic-Arts/sitemap.xml

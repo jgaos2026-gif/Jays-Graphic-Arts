@@ -5,6 +5,8 @@
 (function () {
   'use strict';
 
+  const CONTACT_EMAIL = 'hello@jays-graphic-arts.ai';
+
   /* ---- Navigation: scroll behaviour ----------------------- */
   const nav = document.getElementById('nav');
   if (nav) {
@@ -42,10 +44,45 @@
     setTimeout(() => toast.classList.remove('show'), 4000);
   }
 
+  function escapeMailtoValue(value) {
+    return encodeURIComponent(value).replace(/%20/g, '+');
+  }
+
+  function buildBriefSummary(data) {
+    const lines = [
+      `First name: ${data.firstName || ''}`,
+      `Last name: ${data.lastName || ''}`,
+      `Email: ${data.email || ''}`,
+      `Company: ${data.company || 'N/A'}`,
+      `Service: ${data.service || ''}`,
+      `Budget: ${data.budget || ''}`,
+      `Timeline: ${data.timeline || ''}`,
+      `Referral: ${data.referral || 'N/A'}`,
+      '',
+      'Project brief:',
+      data.brief || '',
+    ];
+
+    return lines.join('\n');
+  }
+
+  async function copyText(text) {
+    if (!navigator.clipboard || !navigator.clipboard.writeText) {
+      return false;
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   /* ---- Contact form --------------------------------------- */
   const contactForm = document.getElementById('contactForm');
   if (contactForm) {
-    contactForm.addEventListener('submit', function (e) {
+    contactForm.addEventListener('submit', async function (e) {
       e.preventDefault();
 
       // Simple client-side validation
@@ -68,13 +105,27 @@
 
       // Serialize form data
       const data = Object.fromEntries(new FormData(contactForm));
+      const summary = buildBriefSummary(data);
+      const copied = await copyText(summary);
+      const subject = `Project brief: ${data.service || 'new inquiry'} — ${data.firstName || ''} ${data.lastName || ''}`.trim();
+      const body = [
+        'Hello Jays-Graphic-Arts,',
+        '',
+        'I would like to start a project. My brief is below:',
+        '',
+        summary,
+        '',
+        copied
+          ? 'The full brief was also copied to my clipboard as a backup.'
+          : 'If your email client trims long messages, please keep a copy of this brief before sending.',
+      ].join('\n');
 
-      // In a real deployment this would POST to an API endpoint.
-      // For now we log to console and show the success toast.
-      console.log('[Jays-Graphic-Arts] Brief submitted:', data);
+      window.location.href = `mailto:${CONTACT_EMAIL}?subject=${escapeMailtoValue(subject)}&body=${escapeMailtoValue(body)}`;
 
       contactForm.reset();
-      showToast('✓ Brief submitted! Check your email for your quote within 60 seconds.');
+      showToast(copied
+        ? '✓ Email draft opened and your full brief was copied.'
+        : '✓ Email draft opened for your brief.');
     });
   }
 
