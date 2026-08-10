@@ -25,6 +25,14 @@ The public-facing website lives at the root of this repository and is composed o
 | [`css/fonts.css`](css/fonts.css) | Google Fonts import (Montserrat + Inter) |
 | [`js/main.js`](js/main.js) | Navigation scroll behaviour, mobile menu, form handling, scroll animations |
 
+### Deployment
+
+The static website deploys to GitHub Pages through [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
+
+- Pushes to `main` that change the site files trigger a Pages deployment automatically
+- You can also trigger the workflow manually from the GitHub Actions tab
+- The deployed artifact includes the root website pages plus the `css/`, `js/`, and `docs/` directories
+
 ### Run locally
 
 Open `index.html` directly in any modern browser, or serve the repository root with a static server:
