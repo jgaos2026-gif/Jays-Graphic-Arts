@@ -89,6 +89,7 @@ class DesktopLauncherApp:
 
         self.site_process: subprocess.Popen[bytes] | None = None
         self.control_room_process: subprocess.Popen[bytes] | None = None
+        self.process_lock = threading.Lock()
 
         self._build_ui()
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
@@ -131,8 +132,13 @@ class DesktopLauncherApp:
         self.control_room_label.config(text=f"Control Room: {control_room.url}")
 
     def _commands(self) -> tuple[ServiceCommand, ServiceCommand]:
-        site_port = int(self.site_port.get())
-        control_room_port = int(self.control_room_port.get())
+        try:
+            site_port = int(self.site_port.get())
+            control_room_port = int(self.control_room_port.get())
+        except ValueError as exc:
+            raise ValueError("Ports must be whole numbers.") from exc
+        if site_port < 1 or site_port > 65535 or control_room_port < 1 or control_room_port > 65535:
+            raise ValueError("Ports must be between 1 and 65535.")
         return make_service_commands(site_port, control_room_port)
 
     def _set_status(self, message: str) -> None:
@@ -153,7 +159,11 @@ class DesktopLauncherApp:
         )
 
     def start_all(self) -> None:
-        self._refresh_labels()
+        try:
+            self._refresh_labels()
+        except ValueError as exc:
+            self._set_status(str(exc))
+            return
         self._launch_background(self._start_all)
 
     def _start_all(self) -> None:
@@ -161,14 +171,22 @@ class DesktopLauncherApp:
             site, control_room = self._commands()
             self._set_status("Starting services...")
 
-            if self.site_process is None or self.site_process.poll() is not None:
-                self.site_process = self._spawn(site)
+            with self.process_lock:
+                site_process = self.site_process
+            if site_process is None or site_process.poll() is not None:
+                new_site_process = self._spawn(site)
+                with self.process_lock:
+                    self.site_process = new_site_process
                 wait_for_port(site.host, site.port)
 
-            if self.control_room_process is None or self.control_room_process.poll() is not None:
+            with self.process_lock:
+                control_room_process = self.control_room_process
+            if control_room_process is None or control_room_process.poll() is not None:
                 env = os.environ.copy()
                 env["PORT"] = str(control_room.port)
-                self.control_room_process = self._spawn(control_room, env=env)
+                new_control_room_process = self._spawn(control_room, env=env)
+                with self.process_lock:
+                    self.control_room_process = new_control_room_process
                 wait_for_port(control_room.host, control_room.port)
 
             self._set_status(
@@ -179,18 +197,29 @@ class DesktopLauncherApp:
             self._set_status(f"Startup failed: {exc}")
 
     def stop_all(self) -> None:
-        stop_process(self.control_room_process)
-        stop_process(self.site_process)
-        self.control_room_process = None
-        self.site_process = None
+        with self.process_lock:
+            control_room_process = self.control_room_process
+            site_process = self.site_process
+            self.control_room_process = None
+            self.site_process = None
+        stop_process(control_room_process)
+        stop_process(site_process)
         self._set_status("Stopped.")
 
     def open_website(self) -> None:
-        site, _ = self._commands()
+        try:
+            site, _ = self._commands()
+        except ValueError as exc:
+            self._set_status(str(exc))
+            return
         webbrowser.open(site.url)
 
     def open_control_room(self) -> None:
-        _, control_room = self._commands()
+        try:
+            _, control_room = self._commands()
+        except ValueError as exc:
+            self._set_status(str(exc))
+            return
         webbrowser.open(control_room.url)
 
     def on_close(self) -> None:

@@ -19,13 +19,6 @@ app.use('/api', (_req, res, next) => {
   next();
 });
 
-app.use((err, _req, res, next) => {
-  if (err instanceof SyntaxError && 'body' in err) {
-    return res.status(400).json({ error: 'Malformed JSON body' });
-  }
-  return next(err);
-});
-
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function ensureDataDir() {
@@ -158,6 +151,13 @@ function startServer(port = PORT) {
 if (require.main === module) {
   startServer();
 }
+
+app.use((err, _req, res, next) => {
+  if (err instanceof SyntaxError && 'body' in err) {
+    return res.status(400).json({ error: 'Malformed JSON body' });
+  }
+  return next(err);
+});
 
 module.exports = app;
 module.exports.startServer = startServer;
