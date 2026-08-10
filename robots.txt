@@ -1,3 +1,4 @@
+# Update this canonical URL if the site ever moves to a custom domain.
 User-agent: *
 Allow: /
 
