@@ -5,6 +5,10 @@
 (function () {
   'use strict';
 
+  const CONTACT_EMAIL = 'hello@jays-graphic-arts.ai';
+  const MAILTO_BODY_LIMIT = 1600;
+  const BRIEF_PREVIEW_LIMIT = 500;
+
   /* ---- Navigation: scroll behaviour ----------------------- */
   const nav = document.getElementById('nav');
   if (nav) {
@@ -42,10 +46,41 @@
     setTimeout(() => toast.classList.remove('show'), 4000);
   }
 
+  function buildBriefSummary(data) {
+    const lines = [
+      `First name: ${data.firstName || ''}`,
+      `Last name: ${data.lastName || ''}`,
+      `Email: ${data.email || ''}`,
+      `Company: ${data.company || 'N/A'}`,
+      `Service: ${data.service || ''}`,
+      `Budget: ${data.budget || ''}`,
+      `Timeline: ${data.timeline || ''}`,
+      `Referral: ${data.referral || 'N/A'}`,
+      '',
+      'Project brief:',
+      data.brief || '',
+    ];
+
+    return lines.join('\n');
+  }
+
+  async function copyText(text) {
+    if (!navigator.clipboard || !navigator.clipboard.writeText) {
+      return false;
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   /* ---- Contact form --------------------------------------- */
   const contactForm = document.getElementById('contactForm');
   if (contactForm) {
-    contactForm.addEventListener('submit', function (e) {
+    contactForm.addEventListener('submit', async function (e) {
       e.preventDefault();
 
       // Simple client-side validation
@@ -68,13 +103,56 @@
 
       // Serialize form data
       const data = Object.fromEntries(new FormData(contactForm));
+      const summary = buildBriefSummary(data);
+      const briefPreview = (data.brief || '').length > BRIEF_PREVIEW_LIMIT
+        ? `${(data.brief || '').slice(0, BRIEF_PREVIEW_LIMIT)}…`
+        : (data.brief || '');
+      const copied = await copyText(summary);
+      const subject = `Project brief: ${data.service || 'new inquiry'} — ${data.firstName || ''} ${data.lastName || ''}`.trim();
+      const backupLine = copied
+        ? 'The full brief was also copied to my clipboard as a backup.'
+        : 'If your email client trims long messages, please keep a copy of this brief before sending.';
+      const fullBody = [
+        'Hello Jays-Graphic-Arts,',
+        '',
+        'I would like to start a project. My brief is below:',
+        '',
+        summary,
+        '',
+        backupLine,
+      ].join('\n');
+      const body = fullBody.length > MAILTO_BODY_LIMIT
+        ? [
+            'Hello Jays-Graphic-Arts,',
+            '',
+            'I would like to start a project. My full brief is too long to safely include in a mailto draft.',
+            '',
+            `Name: ${data.firstName || ''} ${data.lastName || ''}`.trim(),
+            `Email: ${data.email || ''}`,
+            `Company: ${data.company || 'N/A'}`,
+            `Service: ${data.service || ''}`,
+            `Budget: ${data.budget || ''}`,
+            `Timeline: ${data.timeline || ''}`,
+            '',
+            'Brief preview:',
+            briefPreview,
+            '',
+            copied
+              ? 'The full brief was copied to my clipboard. Please paste it into the email before sending.'
+              : 'The full brief is still in the form on the page. Please copy it into the email before sending.',
+          ].join('\n')
+        : fullBody;
+      const mailtoHref = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const mailtoLink = document.createElement('a');
+      mailtoLink.href = mailtoHref;
+      mailtoLink.style.display = 'none';
+      document.body.appendChild(mailtoLink);
+      mailtoLink.click();
+      mailtoLink.remove();
 
-      // In a real deployment this would POST to an API endpoint.
-      // For now we log to console and show the success toast.
-      console.log('[Jays-Graphic-Arts] Brief submitted:', data);
-
-      contactForm.reset();
-      showToast('✓ Brief submitted! Check your email for your quote within 60 seconds.');
+      showToast(copied
+        ? '✓ Email draft opened, your full brief was copied, and your form entries were kept in place.'
+        : '✓ Email draft opened. Your form entries were kept in place in case you need to resend.');
     });
   }
 

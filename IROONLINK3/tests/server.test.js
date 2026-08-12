@@ -46,6 +46,33 @@ function request(method, path, payload) {
   });
 }
 
+function rawRequest(method, path, body, headers = {}) {
+  return new Promise((resolve, reject) => {
+    const payload = body === undefined ? undefined : String(body);
+    const opts = {
+      hostname: 'localhost',
+      port: new URL(baseUrl).port,
+      path,
+      method,
+      headers: {
+        ...(payload ? { 'Content-Length': Buffer.byteLength(payload) } : {}),
+        ...headers,
+      },
+    };
+    const req = http.request(opts, res => {
+      let data = '';
+      res.on('data', c => { data += c; });
+      res.on('end', () => {
+        try { resolve({ status: res.statusCode, body: JSON.parse(data) }); }
+        catch { resolve({ status: res.statusCode, body: data }); }
+      });
+    });
+    req.on('error', reject);
+    if (payload) req.write(payload);
+    req.end();
+  });
+}
+
 test.before(() => new Promise(resolve => {
   server = app.listen(0, () => {
     baseUrl = `http://localhost:${server.address().port}`;
@@ -93,6 +120,31 @@ test('POST /api/nodes returns 400 when required fields missing', async () => {
   assert.ok(body.error);
 });
 
+test('POST /api/nodes trims fields and applies default port', async () => {
+  const payload = { id: '  trimmed-node  ', name: '  Trimmed Node  ', host: ' 127.0.0.1 ', port: '' };
+  const { status, body } = await request('POST', '/api/nodes', payload);
+  assert.equal(status, 201);
+  assert.equal(body.id, 'trimmed-node');
+  assert.equal(body.name, 'Trimmed Node');
+  assert.equal(body.host, '127.0.0.1');
+  assert.equal(body.port, 4000);
+});
+
+test('POST /api/nodes rejects invalid port', async () => {
+  const payload = { id: 'bad-port', name: 'Bad Port', host: '127.0.0.1', port: 70000 };
+  const { status, body } = await request('POST', '/api/nodes', payload);
+  assert.equal(status, 400);
+  assert.match(body.error, /port/i);
+});
+
+test('POST /api/nodes rejects malformed JSON', async () => {
+  const { status, body } = await rawRequest('POST', '/api/nodes', '{"id":', {
+    'Content-Type': 'application/json',
+  });
+  assert.equal(status, 400);
+  assert.equal(body.error, 'Malformed JSON body');
+});
+
 test('GET /api/nodes/:id returns the node', async () => {
   const { status, body } = await request('GET', '/api/nodes/test-node');
   assert.equal(status, 200);
@@ -117,4 +169,10 @@ test('DELETE /api/nodes/:id removes the node', async () => {
   assert.equal(body.id, 'test-node');
   const { status: s2 } = await request('GET', '/api/nodes/test-node');
   assert.equal(s2, 404);
+});
+
+test('DELETE /api/nodes/:id removes trimmed node', async () => {
+  const { status, body } = await request('DELETE', '/api/nodes/trimmed-node');
+  assert.equal(status, 200);
+  assert.equal(body.id, 'trimmed-node');
 });

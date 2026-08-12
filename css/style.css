@@ -767,6 +767,12 @@ section {
   font-size: 0.95rem;
 }
 
+.contact-item-value a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .form {
   display: flex;
   flex-direction: column;
@@ -832,6 +838,12 @@ section {
 .form-textarea {
   resize: vertical;
   min-height: 120px;
+}
+
+.form-note {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  line-height: 1.6;
 }
 
 /* ---- Footer ----------------------------------------------- */

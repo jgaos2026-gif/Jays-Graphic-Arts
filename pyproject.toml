@@ -19,6 +19,7 @@ dev = [
 
 [project.scripts]
 braid-simulator = "braid_simulator.simulator:main"
+jga-desktop = "braid_simulator.desktop_launcher:main"
 
 [tool.setuptools]
 packages = ["braid_simulator", "examples", "examples.integrity_demo", "examples.routing_demo", "examples.recovery_demo"]
