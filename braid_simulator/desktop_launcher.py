@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import signal
 import shutil
 import socket
 import subprocess
@@ -187,6 +188,15 @@ def has_graphical_display() -> bool:
 
 def run_headless(site_port: int, control_room_port: int, open_browser: bool) -> None:
     site, control_room, site_process, control_room_process = start_services(site_port, control_room_port)
+    stop_event = threading.Event()
+
+    def handle_stop_signal(_signum, _frame) -> None:
+        stop_event.set()
+
+    previous_sigint = signal.getsignal(signal.SIGINT)
+    previous_sigterm = signal.getsignal(signal.SIGTERM)
+    signal.signal(signal.SIGINT, handle_stop_signal)
+    signal.signal(signal.SIGTERM, handle_stop_signal)
     try:
         click.echo("Integrated launcher is running in headless mode.")
         click.echo(f"Website: {site.url}")
@@ -195,11 +205,12 @@ def run_headless(site_port: int, control_room_port: int, open_browser: bool) -> 
         if open_browser:
             webbrowser.open(site.url)
             webbrowser.open(control_room.url)
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
+        while not stop_event.is_set():
+            time.sleep(0.2)
         click.echo("Stopping services...")
     finally:
+        signal.signal(signal.SIGINT, previous_sigint)
+        signal.signal(signal.SIGTERM, previous_sigterm)
         stop_process(control_room_process)
         stop_process(site_process)
 
