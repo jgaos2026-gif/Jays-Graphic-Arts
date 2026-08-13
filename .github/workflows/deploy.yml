@@ -6,6 +6,7 @@ on:
     paths:
       - ".github/workflows/deploy.yml"
       - "*.html"
+      - "favicon.svg"
       - "robots.txt"
       - "sitemap.xml"
       - "css/**"
@@ -41,6 +42,7 @@ jobs:
           cp ./*.html _site/
           cp robots.txt _site/
           cp sitemap.xml _site/
+          cp favicon.svg _site/
           cp -R css _site/
           cp -R js _site/
           cp -R docs _site/
