@@ -195,14 +195,16 @@ def run_headless(site_port: int, control_room_port: int, open_browser: bool) -> 
     install_signal_handlers = threading.current_thread() is threading.main_thread()
     previous_sigint = None
     previous_sigterm = None
+    sigterm_supported = hasattr(signal, "SIGTERM")
     if install_signal_handlers:
         def handle_stop_signal(_signum, _frame) -> None:
             stop_event.set()
 
         previous_sigint = signal.getsignal(signal.SIGINT)
-        previous_sigterm = signal.getsignal(signal.SIGTERM)
         signal.signal(signal.SIGINT, handle_stop_signal)
-        signal.signal(signal.SIGTERM, handle_stop_signal)
+        if sigterm_supported:
+            previous_sigterm = signal.getsignal(signal.SIGTERM)
+            signal.signal(signal.SIGTERM, handle_stop_signal)
     try:
         click.echo("Integrated launcher is running in headless mode.")
         click.echo(f"Website: {site.url}")
@@ -215,8 +217,9 @@ def run_headless(site_port: int, control_room_port: int, open_browser: bool) -> 
             time.sleep(HEADLESS_POLL_INTERVAL_SECONDS)
         click.echo("Stopping services...")
     finally:
-        if install_signal_handlers and previous_sigint is not None and previous_sigterm is not None:
+        if install_signal_handlers and previous_sigint is not None:
             signal.signal(signal.SIGINT, previous_sigint)
+        if install_signal_handlers and sigterm_supported and previous_sigterm is not None:
             signal.signal(signal.SIGTERM, previous_sigterm)
         stop_process(control_room_process)
         stop_process(site_process)
