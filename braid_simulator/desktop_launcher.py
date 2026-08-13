@@ -11,6 +11,7 @@ import time
 import webbrowser
 from dataclasses import dataclass
 from pathlib import Path
+from types import ModuleType
 
 import click
 
@@ -170,7 +171,7 @@ def start_services(
     return site, control_room, site_process, control_room_process
 
 
-def load_tk_module(required: bool = False):
+def load_tk_module(required: bool = False) -> ModuleType | None:
     try:
         import tkinter as tk
     except ImportError as exc:
@@ -221,6 +222,7 @@ class DesktopLauncherApp:
         tk_module,
         site_port: int = DEFAULT_SITE_PORT,
         control_room_port: int = DEFAULT_CONTROL_ROOM_PORT,
+        auto_open_browser: bool = False,
     ) -> None:
         self.tk = tk_module
         self.root = tk_module.Tk()
@@ -235,6 +237,8 @@ class DesktopLauncherApp:
         self.site_process: subprocess.Popen[bytes] | None = None
         self.control_room_process: subprocess.Popen[bytes] | None = None
         self.process_lock = threading.Lock()
+        self.auto_open_browser = auto_open_browser
+        self.browser_opened = False
 
         self._build_ui()
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
@@ -330,6 +334,10 @@ class DesktopLauncherApp:
             self._set_status(
                 f"Running.\n- Website: {site.url}\n- Control Room: {control_room.url}"
             )
+            if self.auto_open_browser and not self.browser_opened:
+                webbrowser.open(site.url)
+                webbrowser.open(control_room.url)
+                self.browser_opened = True
         except Exception as exc:
             self.stop_all()
             self._set_status(f"Startup failed: {exc}")
@@ -340,6 +348,7 @@ class DesktopLauncherApp:
             site_process = self.site_process
             self.control_room_process = None
             self.site_process = None
+            self.browser_opened = False
         stop_process(control_room_process)
         stop_process(site_process)
         self._set_status("Stopped.")
@@ -392,10 +401,12 @@ def _main(mode: str, site_port: int, control_room_port: int, open_browser: bool)
         run_headless(site_port, control_room_port, open_browser)
         return
 
-    app = DesktopLauncherApp(tk, site_port=site_port, control_room_port=control_room_port)
-    if open_browser:
-        app.open_website()
-        app.open_control_room()
+    app = DesktopLauncherApp(
+        tk,
+        site_port=site_port,
+        control_room_port=control_room_port,
+        auto_open_browser=open_browser,
+    )
     app.run()
 
 
