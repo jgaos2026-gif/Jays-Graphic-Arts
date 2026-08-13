@@ -7,6 +7,7 @@ on:
       - ".github/workflows/deploy.yml"
       - "*.html"
       - "favicon.svg"
+      - "og-image.png"
       - "robots.txt"
       - "sitemap.xml"
       - "css/**"
@@ -43,6 +44,7 @@ jobs:
           cp robots.txt _site/
           cp sitemap.xml _site/
           cp favicon.svg _site/
+          cp og-image.png _site/
           cp -R css _site/
           cp -R js _site/
           cp -R docs _site/
