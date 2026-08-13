@@ -388,7 +388,7 @@ def _main(mode: str, site_port: int, control_room_port: int, open_browser: bool)
 
     tk = load_tk_module(required=mode == "gui")
     if tk is None or not gui_available:
-        click.echo("GUI launcher unavailable; starting in headless mode.", err=True)
+        click.echo("GUI launcher unavailable; starting in headless mode.")
         run_headless(site_port, control_room_port, open_browser)
         return
 
