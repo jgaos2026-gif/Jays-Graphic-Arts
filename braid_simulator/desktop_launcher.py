@@ -11,6 +11,8 @@ import webbrowser
 from dataclasses import dataclass
 from pathlib import Path
 
+import click
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 IROONLINK3_ROOT = REPO_ROOT / "IROONLINK3"
@@ -46,12 +48,35 @@ def wait_for_port(host: str, port: int, timeout: float = 15.0) -> None:
     raise TimeoutError(f"Timed out waiting for {host}:{port}")
 
 
+def parse_node_major_version(version_output: str) -> int | None:
+    normalized = version_output.strip()
+    if normalized.startswith("v"):
+        normalized = normalized[1:]
+    major, _, _ = normalized.partition(".")
+    if not major.isdigit():
+        return None
+    return int(major)
+
+
 def validate_desktop_runtime() -> None:
     if not IROONLINK3_ROOT.exists():
         raise RuntimeError(f"IROONLINK3 directory not found at {IROONLINK3_ROOT}")
     if not IROONLINK3_ENTRYPOINT.exists():
         raise RuntimeError(f"IROONLINK3 entrypoint not found at {IROONLINK3_ENTRYPOINT}")
-    if shutil.which("node") is None:
+    node_path = shutil.which("node")
+    if node_path is None:
+        raise RuntimeError("Node.js 18+ is required to run the IROONLINK3 control room.")
+    try:
+        version_result = subprocess.run(
+            [node_path, "--version"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise RuntimeError("Unable to determine the installed Node.js version.") from exc
+    node_major_version = parse_node_major_version(version_result.stdout)
+    if node_major_version is None or node_major_version < 18:
         raise RuntimeError("Node.js 18+ is required to run the IROONLINK3 control room.")
     if not IROONLINK3_NODE_MODULES.exists():
         raise RuntimeError(
@@ -70,6 +95,27 @@ class ServiceCommand:
     @property
     def url(self) -> str:
         return f"http://{self.host}:{self.port}"
+
+
+def spawn_service(service: ServiceCommand, env: dict[str, str] | None = None) -> subprocess.Popen[bytes]:
+    return subprocess.Popen(
+        service.command,
+        cwd=service.cwd,
+        env=env,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        start_new_session=os.name != "nt",
+    )
+
+
+def spawn_service_checked(service: ServiceCommand, env: dict[str, str] | None = None) -> subprocess.Popen[bytes]:
+    process = spawn_service(service, env=env)
+    time.sleep(0.2)
+    if process.poll() is not None:
+        raise RuntimeError(
+            f"{service.label} failed to start. Check whether port {service.port} is available and dependencies are installed."
+        )
+    return process
 
 
 def make_service_commands(site_port: int = DEFAULT_SITE_PORT, control_room_port: int = DEFAULT_CONTROL_ROOM_PORT) -> tuple[ServiceCommand, ServiceCommand]:
@@ -98,16 +144,81 @@ def ensure_port_available(service: ServiceCommand, process: subprocess.Popen[byt
         raise RuntimeError(f"{service.label} port {service.port} is already in use.")
 
 
+def start_services(
+    site_port: int = DEFAULT_SITE_PORT,
+    control_room_port: int = DEFAULT_CONTROL_ROOM_PORT,
+) -> tuple[ServiceCommand, ServiceCommand, subprocess.Popen[bytes], subprocess.Popen[bytes]]:
+    validate_desktop_runtime()
+    site, control_room = make_service_commands(site_port, control_room_port)
+    ensure_port_available(site, process=None)
+    site_process = spawn_service_checked(site)
+    try:
+        wait_for_port(site.host, site.port)
+        ensure_port_available(control_room, process=None)
+        env = os.environ.copy()
+        env["PORT"] = str(control_room.port)
+        control_room_process = spawn_service_checked(control_room, env=env)
+        try:
+            wait_for_port(control_room.host, control_room.port)
+        except Exception:
+            stop_process(control_room_process)
+            raise
+    except Exception:
+        stop_process(site_process)
+        raise
+    return site, control_room, site_process, control_room_process
+
+
+def load_tk_module(required: bool = False):
+    try:
+        import tkinter as tk
+    except ImportError as exc:
+        if required:
+            raise click.ClickException(f"tkinter is required for GUI mode: {exc}") from exc
+        return None
+    return tk
+
+
+def has_graphical_display() -> bool:
+    if sys.platform.startswith("linux"):
+        return bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"))
+    return True
+
+
+def run_headless(site_port: int, control_room_port: int, open_browser: bool) -> None:
+    site, control_room, site_process, control_room_process = start_services(site_port, control_room_port)
+    try:
+        click.echo("Integrated launcher is running in headless mode.")
+        click.echo(f"Website: {site.url}")
+        click.echo(f"Control Room: {control_room.url}")
+        click.echo("Press Ctrl+C to stop both services.")
+        if open_browser:
+            webbrowser.open(site.url)
+            webbrowser.open(control_room.url)
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        click.echo("Stopping services...")
+    finally:
+        stop_process(control_room_process)
+        stop_process(site_process)
+
+
 class DesktopLauncherApp:
-    def __init__(self, tk_module) -> None:
+    def __init__(
+        self,
+        tk_module,
+        site_port: int = DEFAULT_SITE_PORT,
+        control_room_port: int = DEFAULT_CONTROL_ROOM_PORT,
+    ) -> None:
         self.tk = tk_module
         self.root = tk_module.Tk()
         self.root.title("Jays Graphic Arts Desktop Launcher")
         self.root.geometry("560x280")
         self.root.resizable(False, False)
 
-        self.site_port = tk_module.StringVar(value=str(DEFAULT_SITE_PORT))
-        self.control_room_port = tk_module.StringVar(value=str(DEFAULT_CONTROL_ROOM_PORT))
+        self.site_port = tk_module.StringVar(value=str(site_port))
+        self.control_room_port = tk_module.StringVar(value=str(control_room_port))
         self.status_text = tk_module.StringVar(value="Ready.")
 
         self.site_process: subprocess.Popen[bytes] | None = None
@@ -171,25 +282,6 @@ class DesktopLauncherApp:
         thread = threading.Thread(target=target, daemon=True)
         thread.start()
 
-    def _spawn(self, service: ServiceCommand, env: dict[str, str] | None = None) -> subprocess.Popen[bytes]:
-        return subprocess.Popen(
-            service.command,
-            cwd=service.cwd,
-            env=env,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            start_new_session=os.name != "nt",
-        )
-
-    def _spawn_checked(self, service: ServiceCommand, env: dict[str, str] | None = None) -> subprocess.Popen[bytes]:
-        process = self._spawn(service, env=env)
-        time.sleep(0.2)
-        if process.poll() is not None:
-            raise RuntimeError(
-                f"{service.label} failed to start. Check whether port {service.port} is available and dependencies are installed."
-            )
-        return process
-
     def start_all(self) -> None:
         try:
             self._refresh_labels()
@@ -208,7 +300,7 @@ class DesktopLauncherApp:
                 site_process = self.site_process
             ensure_port_available(site, site_process)
             if site_process is None or site_process.poll() is not None:
-                new_site_process = self._spawn_checked(site)
+                new_site_process = spawn_service_checked(site)
                 with self.process_lock:
                     self.site_process = new_site_process
                 wait_for_port(site.host, site.port)
@@ -219,7 +311,7 @@ class DesktopLauncherApp:
             if control_room_process is None or control_room_process.poll() is not None:
                 env = os.environ.copy()
                 env["PORT"] = str(control_room.port)
-                new_control_room_process = self._spawn_checked(control_room, env=env)
+                new_control_room_process = spawn_service_checked(control_room, env=env)
                 with self.process_lock:
                     self.control_room_process = new_control_room_process
                 wait_for_port(control_room.host, control_room.port)
@@ -266,12 +358,33 @@ class DesktopLauncherApp:
 
 
 def main() -> None:
-    try:
-        import tkinter as tk
-    except ImportError as exc:
-        raise SystemExit(f"tkinter is required for the desktop launcher: {exc}") from exc
+    _main()
 
-    app = DesktopLauncherApp(tk)
+
+@click.command(context_settings={"help_option_names": ["-h", "--help"]})
+@click.option("--mode", type=click.Choice(["auto", "gui", "headless"]), default="auto", show_default=True)
+@click.option("--site-port", type=click.IntRange(1, 65535), default=DEFAULT_SITE_PORT, show_default=True)
+@click.option("--control-room-port", type=click.IntRange(1, 65535), default=DEFAULT_CONTROL_ROOM_PORT, show_default=True)
+@click.option("--open-browser/--no-open-browser", default=False, show_default=True)
+def _main(mode: str, site_port: int, control_room_port: int, open_browser: bool) -> None:
+    if mode == "headless":
+        run_headless(site_port, control_room_port, open_browser)
+        return
+
+    gui_available = has_graphical_display()
+    if mode == "gui" and not gui_available:
+        raise click.ClickException("No graphical display is available for GUI mode. Use --mode headless instead.")
+
+    tk = load_tk_module(required=mode == "gui")
+    if tk is None or not gui_available:
+        click.echo("GUI launcher unavailable; starting in headless mode.", err=True)
+        run_headless(site_port, control_room_port, open_browser)
+        return
+
+    app = DesktopLauncherApp(tk, site_port=site_port, control_room_port=control_room_port)
+    if open_browser:
+        app.open_website()
+        app.open_control_room()
     app.run()
 
 
