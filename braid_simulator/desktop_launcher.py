@@ -217,10 +217,10 @@ def run_headless(site_port: int, control_room_port: int, open_browser: bool) -> 
             time.sleep(HEADLESS_POLL_INTERVAL_SECONDS)
         click.echo("Stopping services...")
     finally:
-        if install_signal_handlers and previous_sigint is not None:
-            signal.signal(signal.SIGINT, previous_sigint)
-        if install_signal_handlers and sigterm_supported and previous_sigterm is not None:
-            signal.signal(signal.SIGTERM, previous_sigterm)
+        if install_signal_handlers:
+            signal.signal(signal.SIGINT, previous_sigint or signal.default_int_handler)
+        if install_signal_handlers and sigterm_supported:
+            signal.signal(signal.SIGTERM, previous_sigterm or signal.SIG_DFL)
         stop_process(control_room_process)
         stop_process(site_process)
 
