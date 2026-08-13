@@ -12,7 +12,7 @@ from braid_simulator.desktop_launcher import (
     IROONLINK3_ROOT,
     REPO_ROOT,
     ServiceCommand,
-    _main,
+    desktop_launcher_cli,
     ensure_port_available,
     make_service_commands,
     parse_node_major_version,
@@ -149,7 +149,7 @@ def test_cli_auto_mode_falls_back_to_headless(monkeypatch: pytest.MonkeyPatch) -
         ),
     )
 
-    result = runner.invoke(_main, ["--site-port", "9090", "--control-room-port", "3100", "--open-browser"])
+    result = runner.invoke(desktop_launcher_cli, ["--site-port", "9090", "--control-room-port", "3100", "--open-browser"])
 
     assert result.exit_code == 0
     assert "GUI launcher unavailable; starting in headless mode." in result.output

@@ -190,14 +190,17 @@ def has_graphical_display() -> bool:
 def run_headless(site_port: int, control_room_port: int, open_browser: bool) -> None:
     site, control_room, site_process, control_room_process = start_services(site_port, control_room_port)
     stop_event = threading.Event()
+    install_signal_handlers = threading.current_thread() is threading.main_thread()
+    previous_sigint = None
+    previous_sigterm = None
+    if install_signal_handlers:
+        def handle_stop_signal(_signum, _frame) -> None:
+            stop_event.set()
 
-    def handle_stop_signal(_signum, _frame) -> None:
-        stop_event.set()
-
-    previous_sigint = signal.getsignal(signal.SIGINT)
-    previous_sigterm = signal.getsignal(signal.SIGTERM)
-    signal.signal(signal.SIGINT, handle_stop_signal)
-    signal.signal(signal.SIGTERM, handle_stop_signal)
+        previous_sigint = signal.getsignal(signal.SIGINT)
+        previous_sigterm = signal.getsignal(signal.SIGTERM)
+        signal.signal(signal.SIGINT, handle_stop_signal)
+        signal.signal(signal.SIGTERM, handle_stop_signal)
     try:
         click.echo("Integrated launcher is running in headless mode.")
         click.echo(f"Website: {site.url}")
@@ -210,8 +213,9 @@ def run_headless(site_port: int, control_room_port: int, open_browser: bool) -> 
             time.sleep(0.2)
         click.echo("Stopping services...")
     finally:
-        signal.signal(signal.SIGINT, previous_sigint)
-        signal.signal(signal.SIGTERM, previous_sigterm)
+        if install_signal_handlers and previous_sigint is not None and previous_sigterm is not None:
+            signal.signal(signal.SIGINT, previous_sigint)
+            signal.signal(signal.SIGTERM, previous_sigterm)
         stop_process(control_room_process)
         stop_process(site_process)
 
@@ -378,7 +382,7 @@ class DesktopLauncherApp:
 
 
 def main() -> None:
-    _main()
+    desktop_launcher_cli(standalone_mode=True)
 
 
 @click.command(context_settings={"help_option_names": ["-h", "--help"]})
@@ -386,7 +390,7 @@ def main() -> None:
 @click.option("--site-port", type=click.IntRange(1, 65535), default=DEFAULT_SITE_PORT, show_default=True)
 @click.option("--control-room-port", type=click.IntRange(1, 65535), default=DEFAULT_CONTROL_ROOM_PORT, show_default=True)
 @click.option("--open-browser/--no-open-browser", default=False, show_default=True)
-def _main(mode: str, site_port: int, control_room_port: int, open_browser: bool) -> None:
+def desktop_launcher_cli(mode: str, site_port: int, control_room_port: int, open_browser: bool) -> None:
     if mode == "headless":
         run_headless(site_port, control_room_port, open_browser)
         return
