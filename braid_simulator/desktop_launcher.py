@@ -22,6 +22,8 @@ IROONLINK3_ENTRYPOINT = IROONLINK3_ROOT / "server.js"
 IROONLINK3_NODE_MODULES = IROONLINK3_ROOT / "node_modules"
 DEFAULT_SITE_PORT = 8080
 DEFAULT_CONTROL_ROOM_PORT = 3000
+PROCESS_STARTUP_GRACE_SECONDS = 0.2
+HEADLESS_POLL_INTERVAL_SECONDS = 0.2
 
 
 def is_port_open(host: str, port: int, timeout: float = 0.5) -> bool:
@@ -112,7 +114,7 @@ def spawn_service(service: ServiceCommand, env: dict[str, str] | None = None) ->
 
 def spawn_service_checked(service: ServiceCommand, env: dict[str, str] | None = None) -> subprocess.Popen[bytes]:
     process = spawn_service(service, env=env)
-    time.sleep(0.2)
+    time.sleep(PROCESS_STARTUP_GRACE_SECONDS)
     if process.poll() is not None:
         raise RuntimeError(
             f"{service.label} failed to start. Check whether port {service.port} is available and dependencies are installed."
@@ -210,7 +212,7 @@ def run_headless(site_port: int, control_room_port: int, open_browser: bool) -> 
             webbrowser.open(site.url)
             webbrowser.open(control_room.url)
         while not stop_event.is_set():
-            time.sleep(0.2)
+            time.sleep(HEADLESS_POLL_INTERVAL_SECONDS)
         click.echo("Stopping services...")
     finally:
         if install_signal_handlers and previous_sigint is not None and previous_sigterm is not None:
@@ -381,10 +383,6 @@ class DesktopLauncherApp:
         self.root.mainloop()
 
 
-def main() -> None:
-    desktop_launcher_cli(standalone_mode=True)
-
-
 @click.command(context_settings={"help_option_names": ["-h", "--help"]})
 @click.option("--mode", type=click.Choice(["auto", "gui", "headless"]), default="auto", show_default=True)
 @click.option("--site-port", type=click.IntRange(1, 65535), default=DEFAULT_SITE_PORT, show_default=True)
@@ -412,6 +410,10 @@ def desktop_launcher_cli(mode: str, site_port: int, control_room_port: int, open
         auto_open_browser=open_browser,
     )
     app.run()
+
+
+def main() -> None:
+    desktop_launcher_cli(standalone_mode=True)
 
 
 if __name__ == "__main__":
