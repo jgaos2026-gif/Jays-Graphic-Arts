@@ -218,9 +218,15 @@ def run_headless(site_port: int, control_room_port: int, open_browser: bool) -> 
         click.echo("Stopping services...")
     finally:
         if install_signal_handlers:
-            signal.signal(signal.SIGINT, previous_sigint or signal.default_int_handler)
+            signal.signal(
+                signal.SIGINT,
+                previous_sigint if previous_sigint is not None else signal.default_int_handler,
+            )
         if install_signal_handlers and sigterm_supported:
-            signal.signal(signal.SIGTERM, previous_sigterm or signal.SIG_DFL)
+            signal.signal(
+                signal.SIGTERM,
+                previous_sigterm if previous_sigterm is not None else signal.SIG_DFL,
+            )
         stop_process(control_room_process)
         stop_process(site_process)
 
@@ -401,7 +407,9 @@ def desktop_launcher_cli(mode: str, site_port: int, control_room_port: int, open
         raise click.ClickException("No graphical display is available for GUI mode. Use --mode headless instead.")
 
     tk = load_tk_module(required=mode == "gui")
-    if tk is None or not gui_available:
+    if mode == "gui" and tk is None:
+        raise click.ClickException("tkinter is required for GUI mode.")
+    if mode == "auto" and (tk is None or not gui_available):
         click.echo("GUI launcher unavailable; starting in headless mode.")
         run_headless(site_port, control_room_port, open_browser)
         return
