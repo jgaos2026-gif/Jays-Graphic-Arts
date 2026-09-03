@@ -39,7 +39,7 @@ Deno.serve(async (req: Request) => {
 
   let body: Record<string, unknown>;
   try { body = JSON.parse(raw); } catch { return new Response(JSON.stringify({ error: 'malformed_json' }), { status: 400, headers }); }
-  if (text(body.website, 200)) return new Response(JSON.stringify({ accepted: true }), { status: 202, headers }); // honeypot
+  if (text(body.website, 200)) return new Response(JSON.stringify({ accepted: true }), { status: 202, headers });
 
   const firstName = text(body.firstName, 120);
   const lastName = text(body.lastName, 120);
@@ -57,24 +57,31 @@ Deno.serve(async (req: Request) => {
 
   const url = Deno.env.get('SUPABASE_URL');
   const secret = Deno.env.get('SUPABASE_SECRET_KEY') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-  if (!url || !secret) return new Response(JSON.stringify({ error: 'backend_unavailable' }), { status: 503, headers });
+  const salt = Deno.env.get('BRICK1_RATE_SALT');
+  if (!url || !secret || !salt) return new Response(JSON.stringify({ error: 'backend_unavailable' }), { status: 503, headers });
   const admin = createClient(url, secret, { auth: { persistSession: false, autoRefreshToken: false } });
 
   const ip = (req.headers.get('x-forwarded-for') || req.headers.get('cf-connecting-ip') || 'unknown').split(',')[0].trim();
-  const ipHash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${Deno.env.get('BRICK1_RATE_SALT') || 'unset'}:${ip}`));
+  const ipHash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${salt}:${ip}`));
   const ipHex = Array.from(new Uint8Array(ipHash)).map(b => b.toString(16).padStart(2, '0')).join('');
   const { data: allowed, error: rateError } = await admin.rpc('brick1_public_intake_allowed', { p_ip_hash: ipHex });
   if (rateError) return new Response(JSON.stringify({ error: 'rate_gate_unavailable' }), { status: 503, headers });
   if (!allowed) return new Response(JSON.stringify({ error: 'rate_limited' }), { status: 429, headers });
 
-  const { data: customer, error: cErr } = await admin.schema('brick1').from('customers').upsert({ email, first_name: firstName, last_name: lastName, company }, { onConflict: 'email' }).select('id').single();
-  if (cErr || !customer) return new Response(JSON.stringify({ error: 'customer_write_failed' }), { status: 503, headers });
-
-  const { data: order, error: oErr } = await admin.schema('brick1').from('orders').insert({ customer_id: customer.id, service, budget, timeline, brief }).select('id,state,created_at').single();
-  if (oErr || !order) return new Response(JSON.stringify({ error: 'order_write_failed' }), { status: 503, headers });
-
   const correlationId = crypto.randomUUID();
-  await admin.schema('brick1').rpc('append_evidence', { p_correlation_id: correlationId, p_order_id: order.id, p_actor: 'PUBLIC_INTAKE', p_event_type: 'INQUIRY_CREATED', p_payload: { service, budget, timeline, referral } });
+  const { data: inquiry, error: iErr } = await admin.rpc('brick1_create_inquiry', {
+    p_email: email,
+    p_first_name: firstName,
+    p_last_name: lastName,
+    p_company: company,
+    p_service: service,
+    p_budget: budget,
+    p_timeline: timeline,
+    p_brief: brief,
+    p_referral: referral,
+    p_correlation_id: correlationId,
+  });
+  if (iErr || !inquiry) return new Response(JSON.stringify({ error: 'inquiry_write_failed' }), { status: 503, headers });
 
-  return new Response(JSON.stringify({ accepted: true, orderId: order.id, state: order.state, correlationId }), { status: 201, headers });
+  return new Response(JSON.stringify({ accepted: true, orderId: inquiry.order_id, state: inquiry.state, correlationId }), { status: 201, headers });
 });
