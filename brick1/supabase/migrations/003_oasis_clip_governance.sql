@@ -14,12 +14,13 @@ create table if not exists brick1.action_requests (
   order_id uuid not null references brick1.orders(id),
   correlation_id uuid not null,
   requested_by text not null check (requested_by in ('ORION','AVA')),
-  action text not null check (action in ('SET_QUOTE','START_PRODUCTION','REQUEST_QA','FULFILL','ARCHIVE')),
+  action text not null check (action in ('SET_QUOTE','START_PRODUCTION','REQUEST_QA','FULFILL','ARCHIVE','ESCALATE_EXCEPTION')),
   payload jsonb not null default '{}'::jsonb,
   payload_hash text not null,
   status text not null default 'PENDING' check (status in ('PENDING','AUTHORIZED','DENIED','EXECUTED','FAILED')),
   decided_by text,
   decision_reason text,
+  failure_code text,
   created_at timestamptz not null default now(),
   decided_at timestamptz,
   executed_at timestamptz
@@ -98,16 +99,16 @@ set search_path = brick1, public
 as $$
 declare
   r brick1.action_requests;
-  digest text;
+  payload_digest text;
 begin
   if p_actor not in ('ORION','AVA') then raise exception 'proposal_authority_denied'; end if;
-  if p_action not in ('SET_QUOTE','START_PRODUCTION','REQUEST_QA','FULFILL','ARCHIVE') then raise exception 'unsupported_action'; end if;
+  if p_action not in ('SET_QUOTE','START_PRODUCTION','REQUEST_QA','FULFILL','ARCHIVE','ESCALATE_EXCEPTION') then raise exception 'unsupported_action'; end if;
   if not exists(select 1 from brick1.orders where id=p_order_id) then raise exception 'order_not_found'; end if;
-  digest := encode(digest(convert_to(coalesce(p_payload,'{}'::jsonb)::text,'utf8'),'sha256'),'hex');
+  payload_digest := encode(digest(convert_to(coalesce(p_payload,'{}'::jsonb)::text,'utf8'),'sha256'),'hex');
   insert into brick1.action_requests(order_id,correlation_id,requested_by,action,payload,payload_hash)
-  values(p_order_id,p_correlation_id,p_actor,p_action,coalesce(p_payload,'{}'::jsonb),digest)
+  values(p_order_id,p_correlation_id,p_actor,p_action,coalesce(p_payload,'{}'::jsonb),payload_digest)
   returning * into r;
-  perform brick1.append_evidence(p_correlation_id,p_order_id,p_actor,'ACTION_PROPOSED',jsonb_build_object('request_id',r.id,'action',p_action,'payload_hash',digest));
+  perform brick1.append_evidence(p_correlation_id,p_order_id,p_actor,'ACTION_PROPOSED',jsonb_build_object('request_id',r.id,'action',p_action,'payload_hash',payload_digest));
   return jsonb_build_object('request_id',r.id,'status',r.status,'action',r.action);
 end;
 $$;
@@ -132,7 +133,9 @@ begin
   if r.status <> 'PENDING' then raise exception 'request_not_pending'; end if;
   update brick1.action_requests
      set status=case when p_approved then 'AUTHORIZED' else 'DENIED' end,
-         decided_by=p_actor, decision_reason=left(coalesce(p_reason,''),500), decided_at=now()
+         decided_by=p_actor,
+         decision_reason=left(coalesce(p_reason,''),500),
+         decided_at=now()
    where id=p_request_id returning * into r;
   perform brick1.append_evidence(p_correlation_id,r.order_id,p_actor,'ACTION_DECIDED',jsonb_build_object('request_id',r.id,'action',r.action,'approved',p_approved));
   return jsonb_build_object('request_id',r.id,'status',r.status,'action',r.action);
@@ -152,33 +155,56 @@ declare
   r brick1.action_requests;
   result jsonb;
   total_cents bigint;
+  requested_state brick1.exception_state;
+  exception_code text;
+  details_digest text;
+  e brick1.exceptions;
+  failure text;
 begin
   if p_actor <> 'AVA' then raise exception 'ava_execution_authority_required'; end if;
   select * into r from brick1.action_requests where id=p_request_id for update;
   if not found then raise exception 'request_not_found'; end if;
   if r.status <> 'AUTHORIZED' then raise exception 'action_not_authorized'; end if;
 
-  if r.action='SET_QUOTE' then
-    total_cents := nullif(r.payload->>'total_cents','')::bigint;
-    result := public.brick1_set_quote(r.order_id,total_cents,p_actor,p_correlation_id);
-  elsif r.action='START_PRODUCTION' then
-    result := public.brick1_advance(r.order_id,'PRODUCTION',p_actor,p_correlation_id);
-  elsif r.action='REQUEST_QA' then
-    result := public.brick1_advance(r.order_id,'QA',p_actor,p_correlation_id);
-  elsif r.action='FULFILL' then
-    result := public.brick1_advance(r.order_id,'FULFILLED',p_actor,p_correlation_id);
-  elsif r.action='ARCHIVE' then
-    result := public.brick1_advance(r.order_id,'ARCHIVED',p_actor,p_correlation_id);
-  else
-    raise exception 'unsupported_action';
-  end if;
+  begin
+    if r.action='SET_QUOTE' then
+      total_cents := nullif(r.payload->>'total_cents','')::bigint;
+      result := public.brick1_set_quote(r.order_id,total_cents,p_actor,p_correlation_id);
+    elsif r.action='START_PRODUCTION' then
+      result := public.brick1_advance(r.order_id,'PRODUCTION',p_actor,p_correlation_id);
+    elsif r.action='REQUEST_QA' then
+      result := public.brick1_advance(r.order_id,'QA',p_actor,p_correlation_id);
+    elsif r.action='FULFILL' then
+      result := public.brick1_advance(r.order_id,'FULFILLED',p_actor,p_correlation_id);
+    elsif r.action='ARCHIVE' then
+      result := public.brick1_advance(r.order_id,'ARCHIVED',p_actor,p_correlation_id);
+    elsif r.action='ESCALATE_EXCEPTION' then
+      requested_state := nullif(r.payload->>'requested_state','')::brick1.exception_state;
+      exception_code := left(coalesce(nullif(r.payload->>'code',''),'UNSPECIFIED_EXCEPTION'),120);
+      if requested_state not in ('QUARANTINED','RECOVERY','OWNER_REVIEW') then
+        raise exception 'high_risk_exception_state_required';
+      end if;
+      details_digest := encode(digest(convert_to(coalesce(r.payload,'{}'::jsonb)::text,'utf8'),'sha256'),'hex');
+      insert into brick1.exceptions(order_id,correlation_id,state,code,opened_by,details_hash)
+      values(r.order_id,p_correlation_id,requested_state,exception_code,'AVA_VERA_AUTHORIZED',details_digest)
+      returning * into e;
+      update brick1.orders set exception_state=requested_state,updated_at=now() where id=r.order_id;
+      perform brick1.transition_order(r.order_id,'QUARANTINED','AVA_VERA_AUTHORIZED',p_correlation_id);
+      perform brick1.append_evidence(p_correlation_id,r.order_id,'AVA_VERA_AUTHORIZED','EXCEPTION_ESCALATED',jsonb_build_object('exception_id',e.id,'requested_state',requested_state,'code',exception_code,'request_id',r.id));
+      result := jsonb_build_object('order_id',r.order_id,'state','QUARANTINED','exception_state',requested_state,'exception_id',e.id);
+    else
+      raise exception 'unsupported_action';
+    end if;
+  exception when others then
+    failure := left(SQLSTATE || ':' || SQLERRM,500);
+    update brick1.action_requests set status='FAILED',failure_code=failure where id=p_request_id;
+    perform brick1.append_evidence(p_correlation_id,r.order_id,p_actor,'ACTION_FAILED',jsonb_build_object('request_id',r.id,'action',r.action,'failure',failure));
+    return jsonb_build_object('request_id',r.id,'request_status','FAILED','error',failure);
+  end;
 
-  update brick1.action_requests set status='EXECUTED', executed_at=now() where id=p_request_id;
+  update brick1.action_requests set status='EXECUTED', executed_at=now(), failure_code=null where id=p_request_id;
   perform brick1.append_evidence(p_correlation_id,r.order_id,p_actor,'ACTION_EXECUTED',jsonb_build_object('request_id',r.id,'action',r.action));
   return result || jsonb_build_object('request_id',r.id,'request_status','EXECUTED');
-exception when others then
-  update brick1.action_requests set status='FAILED' where id=p_request_id and status='AUTHORIZED';
-  raise;
 end;
 $$;
 
@@ -199,16 +225,15 @@ declare
   details_digest text;
 begin
   if p_actor <> 'AVA' then raise exception 'ava_exception_supervisor_required'; end if;
-  if p_state='NORMAL' then raise exception 'normal_is_not_exception'; end if;
+  if p_state not in ('RETRYABLE_EXCEPTION','WAITING_CUSTOMER','WAITING_PAYMENT','WAITING_QA') then
+    raise exception 'routine_exception_only';
+  end if;
   if not exists(select 1 from brick1.orders where id=p_order_id) then raise exception 'order_not_found'; end if;
   details_digest := encode(digest(convert_to(coalesce(p_details,'{}'::jsonb)::text,'utf8'),'sha256'),'hex');
   insert into brick1.exceptions(order_id,correlation_id,state,code,opened_by,details_hash)
   values(p_order_id,p_correlation_id,p_state,left(p_code,120),p_actor,details_digest)
   returning * into e;
-  update brick1.orders set exception_state=p_state, updated_at=now() where id=p_order_id;
-  if p_state in ('QUARANTINED','RECOVERY','OWNER_REVIEW') then
-    update brick1.orders set state='QUARANTINED', updated_at=now() where id=p_order_id and state not in ('ARCHIVED','CANCELLED');
-  end if;
+  update brick1.orders set exception_state=p_state,updated_at=now() where id=p_order_id;
   perform brick1.append_evidence(p_correlation_id,p_order_id,p_actor,'EXCEPTION_OPENED',jsonb_build_object('exception_id',e.id,'state',p_state,'code',p_code,'details_hash',details_digest));
   return jsonb_build_object('exception_id',e.id,'state',e.state,'active',e.active);
 end;
