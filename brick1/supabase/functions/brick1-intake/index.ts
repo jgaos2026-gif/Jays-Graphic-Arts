@@ -3,18 +3,29 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 
 const MAX_BODY = 16 * 1024;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const DEFAULT_ORIGINS = [
+  'https://jgaos2026-gif.github.io',
+  'https://jays-graphic-arts.ai',
+  'https://www.jays-graphic-arts.ai',
+];
 const allowedServices = new Set(['logo','brand-system','rebrand','collateral','marketing-print','packaging','social','banners','email-templates','logo-animation','social-motion','infographic-motion','blog','ad-copy','email-campaigns','enterprise','other']);
 
+function configuredOrigins() {
+  const custom = (Deno.env.get('BRICK1_ALLOWED_ORIGINS') || '').split(',').map(v => v.trim()).filter(Boolean);
+  return custom.length ? custom : DEFAULT_ORIGINS;
+}
+
 function cors(origin: string | null) {
-  const configured = (Deno.env.get('BRICK1_ALLOWED_ORIGINS') || '').split(',').map(v => v.trim()).filter(Boolean);
-  const allow = origin && configured.includes(origin) ? origin : configured[0] || 'null';
+  const configured = configuredOrigins();
+  const allow = origin && configured.includes(origin) ? origin : 'null';
   return {
     'Access-Control-Allow-Origin': allow,
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Headers': 'content-type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Vary': 'Origin',
     'Content-Type': 'application/json',
     'Cache-Control': 'no-store',
+    'X-Content-Type-Options': 'nosniff',
   };
 }
 
@@ -24,10 +35,10 @@ function text(v: unknown, max: number) {
 }
 
 Deno.serve(async (req: Request) => {
-  const headers = cors(req.headers.get('origin'));
+  const origin = req.headers.get('origin');
+  const headers = cors(origin);
   if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers });
   if (req.method !== 'POST') return new Response(JSON.stringify({ error: 'method_not_allowed' }), { status: 405, headers });
-  const origin = req.headers.get('origin');
   if (!origin || headers['Access-Control-Allow-Origin'] !== origin) return new Response(JSON.stringify({ error: 'origin_not_allowed' }), { status: 403, headers });
   const len = Number(req.headers.get('content-length') || '0');
   if (len > MAX_BODY) return new Response(JSON.stringify({ error: 'payload_too_large' }), { status: 413, headers });
@@ -57,11 +68,11 @@ Deno.serve(async (req: Request) => {
 
   const url = Deno.env.get('SUPABASE_URL');
   const secret = Deno.env.get('SUPABASE_SECRET_KEY') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-  const salt = Deno.env.get('BRICK1_RATE_SALT');
-  if (!url || !secret || !salt) return new Response(JSON.stringify({ error: 'backend_unavailable' }), { status: 503, headers });
+  if (!url || !secret) return new Response(JSON.stringify({ error: 'backend_unavailable' }), { status: 503, headers });
   const admin = createClient(url, secret, { auth: { persistSession: false, autoRefreshToken: false } });
 
   const ip = (req.headers.get('x-forwarded-for') || req.headers.get('cf-connecting-ip') || 'unknown').split(',')[0].trim();
+  const salt = Deno.env.get('BRICK1_RATE_SALT') || secret;
   const ipHash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${salt}:${ip}`));
   const ipHex = Array.from(new Uint8Array(ipHash)).map(b => b.toString(16).padStart(2, '0')).join('');
   const { data: allowed, error: rateError } = await admin.rpc('brick1_public_intake_allowed', { p_ip_hash: ipHex });
