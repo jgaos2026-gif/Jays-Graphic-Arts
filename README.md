@@ -57,6 +57,9 @@ cd IROONLINK3 && npm ci && cd ..
 
 # Start the desktop launcher
 jga-desktop
+
+# Or start the full stack without a GUI (useful on servers and CI boxes)
+jga-desktop --mode headless
 ```
 
 The launcher starts:
@@ -66,9 +69,15 @@ The launcher starts:
 
 Desktop launcher prerequisites:
 
-- Python 3.10+ with `tkinter` available
+- Python 3.10+ (`tkinter` is only required for `--mode gui`)
 - Node.js 18+
 - free local ports for the website and control room
+
+Launcher modes:
+
+- `jga-desktop` uses the GUI when a graphical desktop is available
+- `jga-desktop --mode headless` runs both services in the terminal and keeps them alive until `Ctrl+C`
+- `jga-desktop --site-port 8081 --control-room-port 3001` overrides the default ports in either mode
 
 You can still run the control room on its own:
 
