@@ -32,7 +32,7 @@ function json(body: Record<string, unknown>, status: number, origin: string | nu
 
 Deno.serve(async (request: Request) => {
   const origin = request.headers.get("origin");
-  if (request.method === "OPTIONS") return json({}, 204, origin);
+  if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: headers(origin) });
   if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405, origin);
   if (!origin || !origins().includes(origin)) return json({ error: "origin_not_allowed" }, 403, origin);
   if (!(request.headers.get("content-type") || "").toLowerCase().includes("application/json")) {
