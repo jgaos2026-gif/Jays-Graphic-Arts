@@ -1,2 +1,3 @@
 [console_scripts]
 braid-simulator = braid_simulator.simulator:main
+jga-desktop = braid_simulator.desktop_launcher:main

@@ -7,14 +7,14 @@
     },
     "trust_level": "CERTIFIED",
     "authority_token": {
-      "id": "0aa6bfe0-19ca-46bc-8a03-c39c50ad10eb",
+      "id": "fab5acaf-6194-4c98-88ae-1b9031aaf42c",
       "role": "EXECUTOR",
       "scope": [
         "execute",
         "store",
         "verify"
       ],
-      "issued_at": "2026-07-27T03:38:40.403379+00:00",
+      "issued_at": "2026-08-13T05:47:38.977843+00:00",
       "revoked": false
     },
     "history": [
@@ -31,14 +31,14 @@
     },
     "trust_level": "ACTIVE",
     "authority_token": {
-      "id": "0aa6bfe0-19ca-46bc-8a03-c39c50ad10eb",
+      "id": "fab5acaf-6194-4c98-88ae-1b9031aaf42c",
       "role": "EXECUTOR",
       "scope": [
         "execute",
         "store",
         "verify"
       ],
-      "issued_at": "2026-07-27T03:38:40.403379+00:00",
+      "issued_at": "2026-08-13T05:47:38.977843+00:00",
       "revoked": false
     },
     "history": []

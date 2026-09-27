@@ -7,6 +7,7 @@ braid_simulator/__main__.py
 braid_simulator/authority.py
 braid_simulator/braid.py
 braid_simulator/crossing.py
+braid_simulator/desktop_launcher.py
 braid_simulator/evidence.py
 braid_simulator/execution.py
 braid_simulator/instructions.py
