@@ -32,6 +32,8 @@ The static website deploys to GitHub Pages through [`.github/workflows/deploy.ym
 - Pushes to `main` that change the site files trigger a Pages deployment automatically
 - You can also trigger the workflow manually from the GitHub Actions tab
 - The deployed artifact includes the root website pages plus the `css/`, `js/`, and `docs/` directories
+- The customer payment page is `pay.html`; it starts a server-created Stripe Checkout session and never handles card data directly
+- Stripe and Supabase remain deployment-time dependencies documented in [`docs/STRIPE_SETUP.md`](docs/STRIPE_SETUP.md)
 - If you later move the site to a custom domain, update `/robots.txt` and `/sitemap.xml` to use the new canonical URL
 
 ### Run locally
