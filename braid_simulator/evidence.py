@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import asdict, dataclass
 from hashlib import sha256
 from pathlib import Path
@@ -157,11 +158,18 @@ class EvidenceLog:
             raise TypeError("evidence log accepts EvidenceRecord entries only")
         seq = len(self._records)
         line, chain = _encode_line(seq, record, self._chain_head)
-        self._records.append(record)
-        self._chain_head = chain
         if self._path is not None:
+            # Durability FIRST: write + flush + fsync before touching the
+            # in-memory records or chain head. If the disk write fails, the
+            # in-memory state is exactly as it was — memory and disk can
+            # never diverge, and a later successful append still chains
+            # correctly from the unchanged head.
             with self._path.open("a", encoding="utf-8") as handle:
                 handle.write(line + "\n")
+                handle.flush()
+                os.fsync(handle.fileno())
+        self._records.append(record)
+        self._chain_head = chain
 
     def extend(self, records: Iterable[EvidenceRecord]) -> None:
         for record in records:

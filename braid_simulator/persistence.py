@@ -10,6 +10,9 @@ This module stores evidence records in a SQLite database so they survive process
 restarts.  The schema enforces append-only semantics at the database level:
 
   • No UPDATE or DELETE is issued by this module.
+  • Database-level append-only triggers REFUSE any UPDATE or DELETE on
+    evidence_records (and any UPDATE/DELETE on the immutable braid_sessions
+    table), so even a caller bypassing this module cannot rewrite history.
   • The PRIMARY KEY on (braid_id, sequence_number) prevents duplicate inserts.
   • A row_id AUTOINCREMENT column provides insertion-order monotonicity.
 
@@ -77,7 +80,61 @@ CREATE TABLE IF NOT EXISTS evidence_records (
 );
 
 CREATE INDEX IF NOT EXISTS idx_evidence_braid ON evidence_records(braid_id, sequence_number);
+
+-- Append-only enforcement at the database level: no UPDATE or DELETE on the
+-- evidence log, and no UPDATE or DELETE on immutable braid_sessions. A direct
+-- UPDATE/DELETE attempt fails with SQLITE_CONSTRAINT (RAISE(ABORT)) even from
+-- a caller that bypasses the Python wrapper entirely.
+CREATE TRIGGER IF NOT EXISTS trg_evidence_records_no_update
+BEFORE UPDATE ON evidence_records
+BEGIN
+    SELECT RAISE(ABORT, 'evidence_records is append-only: UPDATE refused');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_evidence_records_no_delete
+BEFORE DELETE ON evidence_records
+BEGIN
+    SELECT RAISE(ABORT, 'evidence_records is append-only: DELETE refused');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_braid_sessions_no_update
+BEFORE UPDATE ON braid_sessions
+BEGIN
+    SELECT RAISE(ABORT, 'braid_sessions is immutable: UPDATE refused');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_braid_sessions_no_delete
+BEFORE DELETE ON braid_sessions
+BEGIN
+    SELECT RAISE(ABORT, 'braid_sessions is immutable: DELETE refused');
+END;
 """
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+_RECORD_COLUMNS = (
+    "tag",
+    "family",
+    "opcode",
+    "timestamp",
+    "strand_i",
+    "strand_j",
+    "input_hash",
+    "output_hash",
+    "result",
+)
+
+
+def _record_matches_row(record: EvidenceRecord, row: sqlite3.Row) -> bool:
+    """Return True iff the stored row is byte-identical to the record.
+
+    Used by save_evidence_log to tell a genuine duplicate (safe to skip)
+    from a conflicting record at the same sequence (must be an error).
+    """
+    return all(getattr(record, column) == row[column] for column in _RECORD_COLUMNS)
 
 
 # ---------------------------------------------------------------------------
@@ -181,14 +238,44 @@ class PersistentEvidenceStore:
                 ),
             )
 
+    def _fetch_record_row(self, braid_id: str, sequence_number: int) -> sqlite3.Row | None:
+        """Return the stored row at (braid_id, sequence_number), or None."""
+        with self._lock:
+            return self._conn.execute(
+                """
+                SELECT tag, family, opcode, timestamp, strand_i, strand_j,
+                       input_hash, output_hash, result
+                FROM evidence_records
+                WHERE braid_id = ? AND sequence_number = ?
+                """,
+                (braid_id, sequence_number),
+            ).fetchone()
+
     def save_evidence_log(self, braid_id: str, log: EvidenceLog) -> None:
-        """Persist all records in log to the store (idempotent — skips existing rows)."""
+        """Persist all records in log to the store.
+
+        Idempotent only for genuine duplicates: a record byte-identical to
+        the one already stored at the same sequence is skipped as already
+        persisted. A conflicting record (different content at the same
+        sequence) raises ValueError — it is never silently skipped. Any
+        other integrity failure (e.g. a NOT NULL violation, where no row
+        exists at that sequence) propagates unchanged.
+        """
         for seq, record in enumerate(log):
             try:
                 self.append_record(braid_id, seq, record)
             except sqlite3.IntegrityError:
-                # Record already persisted — append-only constraint satisfied.
-                pass
+                existing = self._fetch_record_row(braid_id, seq)
+                if existing is None:
+                    # Not a duplicate at all — a real integrity failure.
+                    raise
+                if not _record_matches_row(record, existing):
+                    raise ValueError(
+                        f"conflicting evidence record for braid {braid_id!r} "
+                        f"at sequence {seq}: stored record differs — refusing "
+                        "to overwrite the append-only log"
+                    )
+                # Byte-identical duplicate: already persisted, skip.
 
     def load_evidence_log(self, braid_id: str) -> EvidenceLog:
         """Load all evidence records for braid_id in sequence order."""

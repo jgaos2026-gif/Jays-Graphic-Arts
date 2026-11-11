@@ -22,6 +22,7 @@ from braid_simulator import (
     ExecutableCrossing,
     InstructionFamily,
     IntegrityOpcode,
+    LawViolation,
     RecoveryOpcode,
     RoleOpcode,
     RoutingOpcode,
@@ -193,3 +194,56 @@ class TestVerifyReverse:
 
         verified, terminal = verify_reverse(list(result.evidence_log.records), initial)
         assert verified
+
+    # ------------------------------------------------------------------
+    # Finding 17 — negative strand indices are explicitly rejected
+    # ------------------------------------------------------------------
+
+    def test_negative_strand_i_is_rejected_not_aliased(self) -> None:
+        """strand_i=-1 must raise, not silently verify against strands[-1].
+
+        The hashes below are exactly what verify_reverse would compute for
+        the LAST strand, so before the fix this record verified True by
+        aliasing — the negative index was never rejected.
+        """
+        initial = [
+            StrandState(value={"x": 1}, trust_level=TrustLevel.ACTIVE),
+            StrandState(value={"y": 2}, trust_level=TrustLevel.ACTIVE),
+        ]
+        before = [initial[-1].clone()]
+        input_hash = stable_hash([s.to_dict() for s in before])
+        after = [initial[-1].clone()]
+        after[0].history.append("neg-tag")
+        output_hash = stable_hash([s.to_dict() for s in after])
+        record = EvidenceRecord(
+            "neg-tag", "AUTH", "CHECK", 0, -1, -1, input_hash, output_hash, "PASS",
+        )
+        with pytest.raises(LawViolation, match="non-negative"):
+            verify_reverse([record], initial)
+
+    def test_negative_strand_j_is_rejected(self) -> None:
+        initial = [
+            StrandState(value={"x": 1}, trust_level=TrustLevel.ACTIVE),
+            StrandState(value={"y": 2}, trust_level=TrustLevel.ACTIVE),
+        ]
+        record = EvidenceRecord(
+            "neg-j", "AUTH", "CHECK", 0, 0, -1, "in", "out", "PASS",
+        )
+        with pytest.raises(LawViolation, match="non-negative"):
+            verify_reverse([record], initial)
+
+    def test_oversized_strand_i_still_fails_closed(self) -> None:
+        """An oversized index needs no new rejection: it fails verification.
+
+        Guarding the existing behaviour so the negative-index fix does not
+        accidentally turn a fail-closed False into a silent pass.
+        """
+        initial = [
+            StrandState(value={"x": 1}, trust_level=TrustLevel.ACTIVE),
+            StrandState(value={"y": 2}, trust_level=TrustLevel.ACTIVE),
+        ]
+        record = EvidenceRecord(
+            "big-i", "AUTH", "CHECK", 0, 99, 1, "in", "out", "PASS",
+        )
+        verified, _ = verify_reverse([record], initial)
+        assert not verified

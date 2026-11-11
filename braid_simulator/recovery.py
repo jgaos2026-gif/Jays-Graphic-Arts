@@ -26,8 +26,28 @@ deliverable (see theory/PROOF_OBLIGATIONS.md §3).
 from __future__ import annotations
 
 from .evidence import EvidenceRecord, stable_hash
+from .execution import LawViolation
 from .instructions import IntegrityOpcode, RecoveryOpcode, RoleOpcode, RoutingOpcode, AuthOpcode
 from .state import StrandState, TrustLevel
+
+
+def _ensure_non_negative_strand_indices(record: EvidenceRecord) -> None:
+    """Reject negative strand indices explicitly (structured rejection).
+
+    Python negative indexing would otherwise silently alias the last strand
+    (strands[-1]), so a record addressing strand -1 could verify against
+    state it never legitimately touched. The forward executor already
+    rejects negatives the same way (ensure_strand_index); the recovery
+    path must enforce the same bound. Oversized indices need no new
+    rejection here: they already fail closed — the hash check in
+    verify_reverse returns (False, ...) and _apply_verified_transition
+    skips them.
+    """
+    if record.strand_i < 0 or record.strand_j < 0:
+        raise LawViolation(
+            "strand index must be non-negative "
+            f"(got strand_i={record.strand_i}, strand_j={record.strand_j})"
+        )
 
 
 def _apply_fork_semantics(
@@ -96,6 +116,8 @@ def _apply_verified_transition(record: EvidenceRecord, strands: list[StrandState
     family = record.family
     opcode = record.opcode
     result = record.result
+
+    _ensure_non_negative_strand_indices(record)
 
     if i >= len(strands):
         return
@@ -184,6 +206,9 @@ def verify_reverse(
     strands = [s.clone() for s in initial_strands]
 
     for record in log_records:
+        # Reject negative strand indices before any indexing: strands[-1]
+        # would silently alias the last strand instead of failing.
+        _ensure_non_negative_strand_indices(record)
         i = record.strand_i
         j = record.strand_j
 

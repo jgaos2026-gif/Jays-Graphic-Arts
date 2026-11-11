@@ -149,3 +149,41 @@ def test_jsonl_empty_log_round_trips(tmp_path) -> None:
     loaded = EvidenceLog.load_jsonl(path)
     assert len(loaded) == 0
     assert loaded.chain_head == GENESIS_CHAIN_HASH
+
+
+def test_jsonl_failed_append_leaves_memory_unchanged_and_later_append_chains(tmp_path) -> None:
+    """A disk write failure must not update the in-memory log (finding 09).
+
+    The failed append leaves records and chain head exactly as they were,
+    and a later successful append still chains correctly from the unchanged
+    head — memory and disk never diverge.
+    """
+    from pathlib import Path
+
+    path = tmp_path / "evidence.jsonl"
+    log = EvidenceLog(path=path)
+    log.append(make_record("one"))
+    head_before = log.chain_head
+
+    original_open = Path.open
+
+    def failing_open(self, *args, **kwargs):  # noqa: ANN001, ANN202
+        raise OSError("simulated disk error")
+
+    Path.open = failing_open  # type: ignore[method-assign]
+    try:
+        with pytest.raises(OSError, match="simulated disk error"):
+            log.append(make_record("two"))
+    finally:
+        Path.open = original_open  # type: ignore[method-assign]
+
+    assert [r.tag for r in log.records] == ["one"]
+    assert log.chain_head == head_before
+    assert len(path.read_text(encoding="utf-8").splitlines()) == 1
+
+    # A later successful append chains from the unchanged head.
+    log.append(make_record("two"))
+    assert [r.tag for r in log.records] == ["one", "two"]
+    reloaded = EvidenceLog.load_jsonl(path)
+    assert [r.tag for r in reloaded.records] == ["one", "two"]
+    assert reloaded.chain_head == log.chain_head
