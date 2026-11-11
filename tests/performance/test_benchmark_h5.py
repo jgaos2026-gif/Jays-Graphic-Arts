@@ -41,6 +41,12 @@ from braid_simulator import (
     TrustLevel,
 )
 
+# Round 3 (CI): the module docstring always claimed these tests carry
+# pytest.mark.performance, but no marker was ever applied, so
+# `-m "not performance"` could not exclude them and CI ran the
+# machine-speed throughput assertions as gating tests. Apply it here.
+pytestmark = pytest.mark.performance
+
 
 # ---------------------------------------------------------------------------
 # Helpers

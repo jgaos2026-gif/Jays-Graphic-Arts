@@ -27,3 +27,6 @@ packages = ["braid_simulator", "examples", "examples.integrity_demo", "examples.
 [tool.pytest.ini_options]
 addopts = "-ra"
 testpaths = ["tests"]
+markers = [
+  "performance: machine-speed throughput/latency benchmarks (excluded from gating CI; see .github/workflows/ci.yml)",
+]
