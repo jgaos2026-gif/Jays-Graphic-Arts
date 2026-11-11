@@ -156,6 +156,7 @@ class PersistentEvidenceStore:
         self._db_path = str(db_path)
         self._lock = threading.Lock()
         self._conn = sqlite3.connect(self._db_path, check_same_thread=False)
+        self._conn.execute("PRAGMA foreign_keys = ON")
         self._conn.row_factory = sqlite3.Row
         with self._conn:
             self._conn.executescript(_SCHEMA_SQL)
@@ -216,6 +217,18 @@ class PersistentEvidenceStore:
         enforcing append-only semantics at the database level.
         """
         with self._lock, self._conn:
+            if not isinstance(sequence_number, int) or isinstance(sequence_number, bool) or sequence_number < 0:
+                raise ValueError("sequence_number must be a non-negative integer")
+            expected = self._conn.execute(
+                "SELECT COALESCE(MAX(sequence_number), -1) + 1 AS next_seq "
+                "FROM evidence_records WHERE braid_id = ?",
+                (braid_id,),
+            ).fetchone()["next_seq"]
+            if sequence_number != expected:
+                raise ValueError(
+                    f"non-contiguous evidence sequence for {braid_id!r}: "
+                    f"expected {expected}, got {sequence_number}"
+                )
             self._conn.execute(
                 """
                 INSERT INTO evidence_records
