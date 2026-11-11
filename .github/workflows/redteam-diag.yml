@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Diagnose round-3 zip ci.yml bytes
         run: |
           set -euo pipefail
@@ -22,14 +24,38 @@ jobs:
           wc -c .github/workflows/ci.yml
           echo "===== ZIP ci.yml file ====="
           file .github/workflows/ci.yml
-          echo "===== ZIP ci.yml cat -A (CR is ^M, trailing space precedes dollar) ====="
+          echo "===== ZIP ci.yml cat -A ====="
           cat -A .github/workflows/ci.yml
           echo "===== OLD ci.yml at 6d2002f cat -A ====="
           git show 6d2002f:.github/workflows/ci.yml | cat -A
-          echo "===== sizes ====="
+          echo "===== HEAD ci.yml cat -A ====="
+          git show HEAD:.github/workflows/ci.yml | cat -A
+          echo "===== sizes (zip / old / head) ====="
           echo "zip: $(wc -c < .github/workflows/ci.yml)"
           echo "old: $(git show 6d2002f:.github/workflows/ci.yml | wc -c)"
           echo "head: $(git show HEAD:.github/workflows/ci.yml | wc -c)"
+          echo "===== diff OLD vs ZIP and HEAD vs ZIP (exact bytes) ====="
+          git show 6d2002f:.github/workflows/ci.yml > /tmp/old.yml
+          git show HEAD:.github/workflows/ci.yml > /tmp/head.yml
+          python3 - <<'PYEOF'
+          import difflib
+          old = open('/tmp/old.yml').read().splitlines()
+          new = open('.github/workflows/ci.yml').read().splitlines()
+          head = open('/tmp/head.yml').read().splitlines()
+          print('--- lines that differ OLD vs ZIP ---')
+          for i, (a, b) in enumerate(zip(old, new)):
+              if a != b:
+                  print(f'line {i+1}: old={a!r} zip={b!r}')
+          print('--- extra ZIP lines beyond old (after line 111) ---')
+          for i, b in enumerate(new[111:], start=112):
+              print(f'line {i}: zip={b!r}')
+          print('--- lines that differ HEAD vs ZIP ---')
+          for i, (a, b) in enumerate(zip(head, new)):
+              if a != b:
+                  print(f'line {i+1}: head_len={len(a.encode())} zip_len={len(b.encode())} head={a!r} zip={b!r}')
+          print('--- line counts old/zip/head ---')
+          print(len(old), len(new), len(head))
+          PYEOF
           echo "===== cleanup: remove zip and diag workflow ====="
           rm -f "$ZIP"
           git add -A
