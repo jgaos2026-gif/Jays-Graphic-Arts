@@ -1,7 +1,7 @@
 from .authority import AuthorityManager, AuthorityToken
 from .braid import ExecutableBraid
 from .crossing import CrossingDirection, ExecutableCrossing
-from .evidence import EvidenceLog, EvidenceRecord
+from .evidence import CorruptEvidenceLogError, EvidenceLog, EvidenceRecord
 from .execution import BraidExecutor, Checkpoint, ExecutionResult, LawViolation, TopologicalMismatchFault
 from .instructions import (
     AuthOpcode,
@@ -35,6 +35,7 @@ __all__ = [
     "BraidSession",
     "BraidWord",
     "Checkpoint",
+    "CorruptEvidenceLogError",
     "CrossingDirection",
     "EvidenceLog",
     "EvidenceRecord",
