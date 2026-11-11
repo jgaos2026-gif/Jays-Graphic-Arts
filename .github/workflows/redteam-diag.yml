@@ -1,0 +1,44 @@
+name: Redteam diag (one-time)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Diagnose round-3 zip ci.yml bytes
+        run: |
+          set -euo pipefail
+          ZIP="push-Jays-Graphic-Arts-round3.zip"
+          test -f "$ZIP"
+          unzip -l "$ZIP"
+          unzip -o "$ZIP"
+          echo "===== ZIP ci.yml size ====="
+          wc -c .github/workflows/ci.yml
+          echo "===== ZIP ci.yml file ====="
+          file .github/workflows/ci.yml
+          echo "===== ZIP ci.yml cat -A (CR is ^M, trailing space precedes dollar) ====="
+          cat -A .github/workflows/ci.yml
+          echo "===== OLD ci.yml at 6d2002f cat -A ====="
+          git show 6d2002f:.github/workflows/ci.yml | cat -A
+          echo "===== sizes ====="
+          echo "zip: $(wc -c < .github/workflows/ci.yml)"
+          echo "old: $(git show 6d2002f:.github/workflows/ci.yml | wc -c)"
+          echo "head: $(git show HEAD:.github/workflows/ci.yml | wc -c)"
+          echo "===== cleanup: remove zip and diag workflow ====="
+          rm -f "$ZIP"
+          git add -A
+          git restore --staged .github/workflows || true
+          git restore .github/workflows || true
+          git clean -f .github/workflows || true
+          rm -f .github/workflows/redteam-diag.yml
+          git add -A
+          git status --short
+          if git diff --cached --quiet; then echo "No changes to commit"; exit 0; fi
+          git commit -m "chore: remove redteam diagnostic artifacts"
+          git push
