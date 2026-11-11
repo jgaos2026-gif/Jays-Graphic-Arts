@@ -124,6 +124,30 @@ def test_bypass_connection_cannot_rewrite_history(tmp_path) -> None:
     reopened.close()
 
 
+def test_database_rejects_non_contiguous_direct_insert() -> None:
+    store = PersistentEvidenceStore(":memory:")
+    _seed_store(store)
+    with pytest.raises(sqlite3.IntegrityError, match="sequence must be contiguous"):
+        store._conn.execute(  # noqa: SLF001 - deliberate raw database bypass
+            "INSERT INTO evidence_records "
+            "(braid_id, sequence_number, tag, family, opcode, timestamp, "
+            "strand_i, strand_j, input_hash, output_hash, result) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            ("s1", 2, "gap", "INTEG", "VERIFY", 0, 0, 1, "in", "out", "PASS"),
+        )
+    store._conn.rollback()
+    assert store.record_count("s1") == 1
+    store.close()
+
+
+def test_foreign_key_rejects_orphan_evidence_record() -> None:
+    store = PersistentEvidenceStore(":memory:")
+    assert store._conn.execute("PRAGMA foreign_keys").fetchone()[0] == 1
+    with pytest.raises(sqlite3.IntegrityError, match="FOREIGN KEY"):
+        store.append_record("missing-session", 0, make_record("orphan"))
+    store.close()
+
+
 # ---------------------------------------------------------------------------
 # Finding 11 — save_evidence_log distinguishes duplicates from conflicts
 # ---------------------------------------------------------------------------

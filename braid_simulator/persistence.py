@@ -85,6 +85,19 @@ CREATE INDEX IF NOT EXISTS idx_evidence_braid ON evidence_records(braid_id, sequ
 -- evidence log, and no UPDATE or DELETE on immutable braid_sessions. A direct
 -- UPDATE/DELETE attempt fails with SQLITE_CONSTRAINT (RAISE(ABORT)) even from
 -- a caller that bypasses the Python wrapper entirely.
+CREATE TRIGGER IF NOT EXISTS trg_evidence_records_contiguous_insert
+BEFORE INSERT ON evidence_records
+BEGIN
+    SELECT CASE
+        WHEN NEW.sequence_number != COALESCE(
+            (SELECT MAX(sequence_number) + 1
+             FROM evidence_records WHERE braid_id = NEW.braid_id),
+            0
+        )
+        THEN RAISE(ABORT, 'evidence_records sequence must be contiguous')
+    END;
+END;
+
 CREATE TRIGGER IF NOT EXISTS trg_evidence_records_no_update
 BEFORE UPDATE ON evidence_records
 BEGIN
@@ -156,6 +169,7 @@ class PersistentEvidenceStore:
         self._db_path = str(db_path)
         self._lock = threading.Lock()
         self._conn = sqlite3.connect(self._db_path, check_same_thread=False)
+        self._conn.execute("PRAGMA foreign_keys = ON")
         self._conn.row_factory = sqlite3.Row
         with self._conn:
             self._conn.executescript(_SCHEMA_SQL)
@@ -216,6 +230,29 @@ class PersistentEvidenceStore:
         enforcing append-only semantics at the database level.
         """
         with self._lock, self._conn:
+            if not isinstance(sequence_number, int) or isinstance(sequence_number, bool) or sequence_number < 0:
+                raise ValueError("sequence_number must be a non-negative integer")
+            expected = self._conn.execute(
+                "SELECT COALESCE(MAX(sequence_number), -1) + 1 AS next_seq "
+                "FROM evidence_records WHERE braid_id = ?",
+                (braid_id,),
+            ).fetchone()["next_seq"]
+            if sequence_number > expected:
+                raise ValueError(
+                    f"non-contiguous evidence sequence for {braid_id!r}: "
+                    f"expected at most {expected}, got {sequence_number}"
+                )
+            if sequence_number < expected:
+                existing = self._conn.execute(
+                    "SELECT 1 FROM evidence_records "
+                    "WHERE braid_id = ? AND sequence_number = ?",
+                    (braid_id, sequence_number),
+                ).fetchone()
+                if existing is None:
+                    raise ValueError(
+                        f"out-of-order evidence sequence for {braid_id!r}: "
+                        f"sequence {sequence_number} is missing before {expected}"
+                    )
             self._conn.execute(
                 """
                 INSERT INTO evidence_records

@@ -119,8 +119,11 @@ def _apply_verified_transition(record: EvidenceRecord, strands: list[StrandState
 
     _ensure_non_negative_strand_indices(record)
 
-    if i >= len(strands):
-        return
+    if i >= len(strands) or j >= len(strands):
+        raise LawViolation(
+            "evidence record references a strand outside the registered state "
+            f"(strand_i={i}, strand_j={j}, strand_count={len(strands)})"
+        )
 
     # ROUTE.FORK: clone strand_i into strand_j BEFORE touching either strand.
     # See _apply_fork_semantics() for the ordering rationale.
