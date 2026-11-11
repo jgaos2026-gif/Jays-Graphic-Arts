@@ -224,11 +224,22 @@ class PersistentEvidenceStore:
                 "FROM evidence_records WHERE braid_id = ?",
                 (braid_id,),
             ).fetchone()["next_seq"]
-            if sequence_number != expected:
+            if sequence_number > expected:
                 raise ValueError(
                     f"non-contiguous evidence sequence for {braid_id!r}: "
-                    f"expected {expected}, got {sequence_number}"
+                    f"expected at most {expected}, got {sequence_number}"
                 )
+            if sequence_number < expected:
+                existing = self._conn.execute(
+                    "SELECT 1 FROM evidence_records "
+                    "WHERE braid_id = ? AND sequence_number = ?",
+                    (braid_id, sequence_number),
+                ).fetchone()
+                if existing is None:
+                    raise ValueError(
+                        f"out-of-order evidence sequence for {braid_id!r}: "
+                        f"sequence {sequence_number} is missing before {expected}"
+                    )
             self._conn.execute(
                 """
                 INSERT INTO evidence_records
