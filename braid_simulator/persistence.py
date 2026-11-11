@@ -85,6 +85,19 @@ CREATE INDEX IF NOT EXISTS idx_evidence_braid ON evidence_records(braid_id, sequ
 -- evidence log, and no UPDATE or DELETE on immutable braid_sessions. A direct
 -- UPDATE/DELETE attempt fails with SQLITE_CONSTRAINT (RAISE(ABORT)) even from
 -- a caller that bypasses the Python wrapper entirely.
+CREATE TRIGGER IF NOT EXISTS trg_evidence_records_contiguous_insert
+BEFORE INSERT ON evidence_records
+BEGIN
+    SELECT CASE
+        WHEN NEW.sequence_number != COALESCE(
+            (SELECT MAX(sequence_number) + 1
+             FROM evidence_records WHERE braid_id = NEW.braid_id),
+            0
+        )
+        THEN RAISE(ABORT, 'evidence_records sequence must be contiguous')
+    END;
+END;
+
 CREATE TRIGGER IF NOT EXISTS trg_evidence_records_no_update
 BEFORE UPDATE ON evidence_records
 BEGIN
