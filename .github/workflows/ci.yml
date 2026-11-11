@@ -30,6 +30,9 @@ jobs:
       - name: Install dependencies
         run: pip install -e ".[dev]"
 
+      - name: Install pytest
+        run: pip install pytest
+
       # Gating suite: functional tests only. The performance benchmarks in
       # tests/performance assert machine-speed throughput thresholds
       # (e.g. B5-C ≥ 1,000 cycles/s) that fail on slower/shared CI runners
