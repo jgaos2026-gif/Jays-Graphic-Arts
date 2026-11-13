@@ -19,7 +19,7 @@ Personal Gmail attachment limit is 25 MB total. This tool can create 18 MiB chun
 Python 3.10+; standard library only for core functions.
 
 ```bash
-python -m unittest discover -s tests -v
+python -m unittest discover -s tests_universal -v
 ```
 
 Install ClamAV separately and ensure `clamscan` is on PATH for malware scanning. Without it, inbound files remain UNKNOWN and are quarantined.
